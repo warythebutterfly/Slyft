@@ -53,6 +53,19 @@ const LoginScreen = () => {
           email: yup
             .string()
             .email("Invalid email")
+            .test(
+              "unilagEmail",
+              "Enter a student or staff email address",
+              function (value) {
+                // Check if the email ends with either "@live.unilag.edu.ng" or "@unilag.edu.ng"
+                if (value.endsWith("@live.unilag.edu.ng")) {
+                  // Check if the matric number has 9 digits
+                  const matricNumber = value.split("@")[0]; // Extract the matric number
+                  return matricNumber.length === 9;
+                }
+                return value.endsWith("@unilag.edu.ng");
+              }
+            )
             .required("Email is required"),
           password: yup.string().required("Password is required"),
         })}
