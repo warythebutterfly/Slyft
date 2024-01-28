@@ -152,11 +152,13 @@ const SignUpScreen = () => {
                 value={values.confirmPassword}
               />
               {touched.confirmPassword && errors.confirmPassword && (
-                <Text style={tw`text-red-500 mt-2`}>{errors.confirmPassword}</Text>
+                <Text style={tw`text-red-500 mt-2`}>
+                  {errors.confirmPassword}
+                </Text>
               )}
             </View>
             <TouchableOpacity
-              style={tw`bg-gray-800 p-4 rounded-md w-full mb-4`}
+              style={tw`bg-gray-800 p-4 rounded-md w-full mb-14`}
               onPress={handleSubmit}
               disabled={loading}
             >
@@ -176,7 +178,7 @@ const SignUpScreen = () => {
           </>
         )}
       </Formik>
-      <Toast ref={(ref) => Toast.setRef(ref)} />
+      <Toast innerRef={(ref) => Toast.setRef(ref)} />
     </KeyboardAvoidingView>
   );
 };

@@ -114,7 +114,7 @@ const LoginScreen = () => {
             </View>
 
             <TouchableOpacity
-              style={tw`bg-gray-800 p-4 rounded-md w-full mb-4`}
+              style={tw`bg-gray-800 p-4 rounded-md w-full mb-14`}
               onPress={handleSubmit}
               disabled={loading}
             >
@@ -128,7 +128,7 @@ const LoginScreen = () => {
             </TouchableOpacity>
 
             <TouchableOpacity onPress={navigateToSignUp}>
-              <Text style={tw`text-gray-500 text-center mb-4`}>
+              <Text style={tw`text-gray-500 text-center mb-6`}>
                 Don't have an account? Sign Up
               </Text>
             </TouchableOpacity>
@@ -141,7 +141,7 @@ const LoginScreen = () => {
           </>
         )}
       </Formik>
-      <Toast ref={(ref) => Toast.setRef(ref)} />
+      <Toast innerRef={(ref) => Toast.setRef(ref)} />
     </KeyboardAvoidingView>
   );
 };

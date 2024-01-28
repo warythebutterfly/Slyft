@@ -45,16 +45,6 @@ const ForgotPasswordScreen = () => {
           Slyft
         </Text>
       </View>
-      {/* <Image
-          style={{
-            width: 100,
-            height: 100,
-            resizeMode: "contain",
-          }}
-          source={{
-            url: "https://links.papareact.com/gzs",
-          }}
-        /> */}
 
       <View style={tw`w-full mb-6`}>
         <TextInput
@@ -66,16 +56,8 @@ const ForgotPasswordScreen = () => {
         />
       </View>
 
-      {/* <TouchableOpacity
-          style={tw`bg-gray-800 p-4 rounded-md w-full mb-4`}
-          onPress={handleLogin}
-        >
-          <Text style={tw`text-white text-center font-bold text-lg`}>
-            Login
-          </Text>
-        </TouchableOpacity> */}
       <TouchableOpacity
-        style={tw`bg-gray-800 p-4 rounded-md w-full mb-4`}
+        style={tw`bg-gray-800 p-4 rounded-md w-full mb-14`}
         onPress={handleForgotPassword}
         disabled={loading}
       >
