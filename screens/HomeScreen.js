@@ -15,6 +15,7 @@ import { setDestination, setOrigin } from "../slices/navSlice";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Icon } from "react-native-elements";
+import NavFavourites from "../components/NavFavourites";
 
 const validationSchema = Yup.object().shape({
   location: Yup.string().required("Location is required"),
@@ -73,6 +74,7 @@ const HomeScreen = () => {
           }}
           onPress={(data, details = null) => {
             formik.setFieldValue("location", data.description);
+            console.log("location", details.geometry.location);
             dispatch(
               setOrigin({
                 location: details.geometry.location,
@@ -101,7 +103,7 @@ const HomeScreen = () => {
             <TouchableOpacity
               style={styles.clearButton}
               onPress={() => {
-                this.textInput.clear();
+                this.textInput?.clear();
                 // Handle the clear button press
                 formik.setFieldValue("location", "");
                 dispatch(setOrigin(null));
@@ -115,7 +117,7 @@ const HomeScreen = () => {
             </TouchableOpacity>
           )}
           nearbyPlacesAPI="GooglePlacesSearch"
-          predefinedPlaces={[homePlace, workPlace]}
+          //predefinedPlaces={[homePlace, workPlace]}
           debounce={200}
           value={formik.values.location}
           onChangeText={(text) => {
@@ -132,6 +134,7 @@ const HomeScreen = () => {
           </Text>
         )}
         <NavOptions formik={formik} />
+        <NavFavourites formik={formik} />
       </View>
     </SafeAreaView>
   );

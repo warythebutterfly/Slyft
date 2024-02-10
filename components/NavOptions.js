@@ -3,11 +3,8 @@ import React from "react";
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
-import { useFormikContext } from "formik";
 import { useSelector } from "react-redux";
 import { selectOrigin } from "../slices/navSlice";
-
-
 
 const data = [
   {
@@ -22,13 +19,8 @@ const data = [
     image: "https://links.papareact.com/3pn",
     screen: "Map",
   },
-  //   {
-  //     id: "3",
-  //     title: "Order food",
-  //     image: "https://links.papareact.com/28w",
-  //     screen:"EatsScreen"
-  //   },
 ];
+
 const NavOptions = ({ formik }) => {
   const navigation = useNavigation();
   const origin = useSelector(selectOrigin);

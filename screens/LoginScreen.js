@@ -12,6 +12,9 @@ import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from "formik";
 import * as yup from "yup";
+import axios from "axios";
+import { BASE_URL } from "@env";
+
 
 const LoginScreen = () => {
   const [loading, setLoading] = useState(false);
@@ -71,21 +74,67 @@ const LoginScreen = () => {
         })}
         onSubmit={(values) => {
           setLoading(true);
-          setTimeout(() => {
-            Toast.show({
-              type: "success",
-              position: "top",
-              text1: "Login Successful!",
-              visibilityTime: 3000,
-              autoHide: true,
-            });
-            setLoading(false);
-            setTimeout(() => {
-              navigation.navigate("Home");
-            }, 2000);
-          }, 2000);
           // Perform sign-up logic here
           console.log("Login pressed with:", values);
+
+          axios
+            .post(`${BASE_URL}/user/auth/login`, values, {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+            .then((response) => {
+              setLoading(false);
+
+              if (response.data.success) {
+                navigation.navigate("Home");
+              } else {
+                console.log(response);
+              }
+            })
+            .catch((error) => {
+              console.log(error);
+              setLoading(false);
+              if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                console.error(
+                  "Server responded with error status:",
+                  error.response.status
+                );
+                console.error("Error message:", error.response.data);
+                Toast.show({
+                  type: "error",
+                  position: "top",
+                  text1: error.response.data.errors[0],
+                  visibilityTime: 3000,
+                  autoHide: true,
+                });
+              } else if (error.request) {
+                // The request was made but no response was received
+                console.error(
+                  "Request made but no response received:",
+                  error.request
+                );
+                Toast.show({
+                  type: "error",
+                  position: "top",
+                  text1: "Something went wrong. please try again later.",
+                  visibilityTime: 3000,
+                  autoHide: true,
+                });
+              } else {
+                // Something happened in setting up the request that triggered an Error
+                console.error("Error setting up request:", error.message);
+                Toast.show({
+                  type: "error",
+                  position: "top",
+                  text1: "Something went wrong. please try again later.",
+                  visibilityTime: 3000,
+                  autoHide: true,
+                });
+              }
+            });
         }}
       >
         {({

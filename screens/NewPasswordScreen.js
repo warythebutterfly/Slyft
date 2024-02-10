@@ -14,14 +14,20 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import axios from "axios";
 import { BASE_URL } from "@env";
+import { useSelector } from "react-redux";
+import { selectUser } from "../slices/navSlice";
 
-const SignUpScreen = () => {
+const NewPasswordScreen = () => {
+  const user = useSelector(selectUser);
   const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
 
-  const navigateToLogin = () => {
-    navigation.navigate("Login");
+  const navigateToSignUp = () => {
+    navigation.navigate("SignUp");
+  };
+  const navigateToForgotPassword = () => {
+    navigation.navigate("ForgotPassword");
   };
 
   return (
@@ -45,43 +51,26 @@ const SignUpScreen = () => {
 
       <Formik
         initialValues={{
-          firstname: "",
-          lastname: "",
-          email: "",
           password: "",
           confirmPassword: "",
         }}
         validationSchema={yup.object().shape({
-          firstname: yup.string().required("Firstname is required"),
-          lastname: yup.string().required("Lastname is required"),
-          email: yup
-            .string()
-            .email("Invalid email")
-            .test(
-              "unilagEmail",
-              "Enter a student or staff email address",
-              function (value) {
-                // Check if the email ends with either "@live.unilag.edu.ng" or "@unilag.edu.ng"
-                if (value.endsWith("@live.unilag.edu.ng")) {
-                  // Check if the matric number has 9 digits
-                  const matricNumber = value.split("@")[0]; // Extract the matric number
-                  return matricNumber.length === 9;
-                }
-                return value.endsWith("@unilag.edu.ng");
-              }
-            )
-            .required("Email is required"),
           password: yup.string().required("Password is required"),
           confirmPassword: yup
             .string()
             .oneOf([yup.ref("password"), null], "Passwords must match"),
         })}
         onSubmit={(values) => {
+          values.email = user.email;
+          values.newPassword = values.password;
+          values.otp = user.otp;
+          values.type = "forgot";
           setLoading(true);
           // Perform sign-up logic here
-          console.log("Sign up pressed with:", values);
+          console.log("Reset pressed with:", values);
+
           axios
-            .post(`${BASE_URL}/user/auth/register`, values, {
+            .post(`${BASE_URL}/user/auth/password-reset`, values, {
               headers: {
                 "Content-Type": "application/json",
               },
@@ -90,12 +79,22 @@ const SignUpScreen = () => {
               setLoading(false);
 
               if (response.data.success) {
-                navigation.navigate("Home");
+                Toast.show({
+                  type: "success",
+                  position: "top",
+                  text1: response.data.message,
+                  visibilityTime: 3000,
+                  autoHide: true,
+                });
+                setTimeout(() => {
+                  navigation.navigate("Login");
+                }, 2000);
               } else {
                 console.log(response);
               }
             })
             .catch((error) => {
+              console.log(error);
               setLoading(false);
               if (error.response) {
                 // The request was made and the server responded with a status code
@@ -151,47 +150,7 @@ const SignUpScreen = () => {
             <View style={tw`w-full mb-6`}>
               <TextInput
                 style={tw`h-12 bg-gray-100 rounded-md px-4`}
-                placeholder="Firstname"
-                autoCapitalize="words"
-                onChangeText={handleChange("firstname")}
-                onBlur={handleBlur("firstname")}
-                value={values.firstname}
-              />
-              {touched.firstname && errors.firstname && (
-                <Text style={tw`text-red-500 mt-2`}>{errors.firstname}</Text>
-              )}
-            </View>
-            <View style={tw`w-full mb-6`}>
-              <TextInput
-                style={tw`h-12 bg-gray-100 rounded-md px-4`}
-                placeholder="Lastname"
-                autoCapitalize="words"
-                onChangeText={handleChange("lastname")}
-                onBlur={handleBlur("lastname")}
-                value={values.lastname}
-              />
-              {touched.lastname && errors.lastname && (
-                <Text style={tw`text-red-500 mt-2`}>{errors.lastname}</Text>
-              )}
-            </View>
-            <View style={tw`w-full mb-6`}>
-              <TextInput
-                style={tw`h-12 bg-gray-100 rounded-md px-4`}
-                placeholder="Email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                onChangeText={handleChange("email")}
-                onBlur={handleBlur("email")}
-                value={values.email}
-              />
-              {touched.email && errors.email && (
-                <Text style={tw`text-red-500 mt-2`}>{errors.email}</Text>
-              )}
-            </View>
-            <View style={tw`w-full mb-6`}>
-              <TextInput
-                style={tw`h-12 bg-gray-100 rounded-md px-4`}
-                placeholder="Password"
+                placeholder="New Password"
                 secureTextEntry
                 onChangeText={handleChange("password")}
                 onBlur={handleBlur("password")}
@@ -204,7 +163,7 @@ const SignUpScreen = () => {
             <View style={tw`w-full mb-6`}>
               <TextInput
                 style={tw`h-12 bg-gray-100 rounded-md px-4`}
-                placeholder="Confirm Password"
+                placeholder="Confirm New Password"
                 secureTextEntry
                 onChangeText={handleChange("confirmPassword")}
                 onBlur={handleBlur("confirmPassword")}
@@ -216,6 +175,7 @@ const SignUpScreen = () => {
                 </Text>
               )}
             </View>
+
             <TouchableOpacity
               style={tw`bg-gray-800 p-4 rounded-md w-full mb-14`}
               onPress={handleSubmit}
@@ -225,13 +185,20 @@ const SignUpScreen = () => {
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
                 <Text style={tw`text-white text-center font-bold text-lg`}>
-                  Sign Up
+                  Submit
                 </Text>
               )}
             </TouchableOpacity>
-            <TouchableOpacity onPress={navigateToLogin}>
-              <Text style={tw`text-gray-500`}>
-                Already have an account? Log in
+
+            <TouchableOpacity onPress={navigateToSignUp}>
+              <Text style={tw`text-gray-500 text-center mb-6`}>
+                Don't have an account? Sign Up
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={navigateToForgotPassword}>
+              <Text style={tw`text-gray-500 text-center`}>
+                Forgot Password?
               </Text>
             </TouchableOpacity>
           </>
@@ -242,4 +209,4 @@ const SignUpScreen = () => {
   );
 };
 
-export default SignUpScreen;
+export default NewPasswordScreen;
