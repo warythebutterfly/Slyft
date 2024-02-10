@@ -23,12 +23,10 @@ const NewPasswordScreen = () => {
 
   const navigation = useNavigation();
 
-  const navigateToSignUp = () => {
-    navigation.navigate("SignUp");
+  const navigateToLogin = () => {
+    navigation.navigate("Login");
   };
-  const navigateToForgotPassword = () => {
-    navigation.navigate("ForgotPassword");
-  };
+
 
   return (
     <KeyboardAvoidingView
@@ -190,15 +188,9 @@ const NewPasswordScreen = () => {
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={navigateToSignUp}>
-              <Text style={tw`text-gray-500 text-center mb-6`}>
-                Don't have an account? Sign Up
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={navigateToForgotPassword}>
-              <Text style={tw`text-gray-500 text-center`}>
-                Forgot Password?
+            <TouchableOpacity onPress={navigateToLogin}>
+              <Text style={tw`text-gray-500`}>
+                Already have an account? Log in
               </Text>
             </TouchableOpacity>
           </>

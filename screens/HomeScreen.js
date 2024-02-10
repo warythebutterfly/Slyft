@@ -115,7 +115,8 @@ const HomeScreen = () => {
               <Icon
                 name="clear"
                 size={10}
-                style={tw`p-2 bg-gray-200 rounded-full mt-1`}
+                style={tw`p-1 bg-gray-200 rounded-full mt-3`}
+                color="#fff"
               />
             </TouchableOpacity>
           )}
