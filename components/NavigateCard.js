@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import tw from "tailwind-react-native-classnames";
 import { Icon } from "react-native-elements";
-import React from "react";
+import React, { useEffect } from "react";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { GOOGLE_MAPS_APIKEY } from "@env";
 import { useDispatch } from "react-redux";
@@ -16,6 +16,11 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
 import NavFavourites from "./NavFavourites";
+import axios from "axios";
+import { BASE_URL } from "@env";
+import { useSelector } from "react-redux";
+import { selectUser } from "../slices/navSlice";
+import { setUser } from "../slices/navSlice";
 
 const validationSchema = Yup.object().shape({
   location: Yup.string().required("Destination is required"),
@@ -32,8 +37,49 @@ const workPlace = {
 };
 
 const NavigateCard = () => {
-  const navigation = useNavigation();
   const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  useEffect(() => {
+    axios
+      .get(`${BASE_URL}/user/me`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+      })
+      .then((response) => {
+        if (response.data.success) {
+          dispatch(setUser({ ...user, ...response.data.data }));
+          console.log(user);
+        } else {
+          console.log(response);
+        }
+      })
+      .catch((error) => {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.error(
+            "Server responded with error status:",
+            error.response.status
+          );
+          console.error("Error message:", error.response.data);
+          navigation.navigate("Login");
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error(
+            "Request made but no response received:",
+            error.request
+          );
+          navigation.navigate("Login");
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.error("Error setting up request:", error.message);
+          navigation.navigate("Login");
+        }
+      });
+  }, []);
+  const navigation = useNavigation();
   const formik = useFormik({
     initialValues: {
       destination: "",
@@ -48,7 +94,9 @@ const NavigateCard = () => {
   return (
     <SafeAreaView style={tw`bg-white flex-1`}>
       {/* TODO: Replace name after logging in */}
-      <Text style={tw`text-center py-5 text-xl`}>Good morning, Temitoyosi</Text>
+      <Text style={tw`text-center py-5 text-xl`}>
+        Good morning, {user.firstname}
+      </Text>
       <View style={tw`border-t border-gray-200 flex-shrink`}>
         <GooglePlacesAutocomplete
           placeholder="Where to?"

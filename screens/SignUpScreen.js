@@ -14,8 +14,11 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import axios from "axios";
 import { BASE_URL } from "@env";
+import { useDispatch } from "react-redux";
+import { setUser } from "../slices/navSlice";
 
 const SignUpScreen = () => {
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
@@ -90,6 +93,11 @@ const SignUpScreen = () => {
               setLoading(false);
 
               if (response.data.success) {
+                dispatch(
+                  setUser({
+                    token: response.data.data.token,
+                  })
+                );
                 navigation.navigate("Home");
               } else {
                 console.log(response);

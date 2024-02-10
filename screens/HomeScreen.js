@@ -16,6 +16,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Icon } from "react-native-elements";
 import NavFavourites from "../components/NavFavourites";
+import { useSelector } from "react-redux";
+import { selectUser } from "../slices/navSlice";
 
 const validationSchema = Yup.object().shape({
   location: Yup.string().required("Location is required"),
@@ -32,6 +34,7 @@ const workPlace = {
 };
 
 const HomeScreen = () => {
+  const user = useSelector(selectUser);
   const dispatch = useDispatch();
   const formik = useFormik({
     initialValues: {
