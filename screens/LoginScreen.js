@@ -48,12 +48,12 @@ const LoginScreen = () => {
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        console.log("Received message:", message.user);
-        ws.send(
-          JSON.stringify({
-            user: "552975295sfg",
-          })
-        );
+        //console.log("Received message:", message.user);
+        // ws.send(
+        //   JSON.stringify({
+        //     user: "552975295sfg",
+        //   })
+        // );
         if (user._id.toString() === message.user.toString())
           setMessages((prevMessages) => [...prevMessages, message]);
       } catch (error) {
@@ -233,14 +233,6 @@ const LoginScreen = () => {
                 });
               }
             });
-
-          // setLoading(false);
-          // dispatch(
-          //   setUser({
-          //     token: response.data.data.token,
-          //   })
-          // );
-          // navigation.navigate("Home");
         }}
       >
         {({

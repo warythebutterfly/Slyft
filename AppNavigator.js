@@ -9,6 +9,7 @@ import GetMapScreen from "./screens/GetMapScreen";
 import GiveMapScreen from "./screens/GiveMapScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import NewPasswordScreen from "./screens/NewPasswordScreen";
+import OTPScreen from "./screens/OTPScreen";
 
 const Stack = createStackNavigator();
 
@@ -23,6 +24,11 @@ const AppNavigator = () => {
       <Stack.Screen
         name="SignUp"
         component={SignUpScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="OTP"
+        component={OTPScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen

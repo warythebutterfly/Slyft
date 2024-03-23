@@ -34,7 +34,11 @@ const FinderCard = ({ route }) => {
       <View style={tw`h-40 justify-center items-center`}>
         <ActivityIndicator size="large" color="#000" />
 
-        <Text style={tw`mt-2 text-lg font-semibold`}>{message}</Text>
+        <Text
+          style={tw`mt-2 text-lg font-semibold flex-1 justify-center items-center`}
+        >
+          {message}
+        </Text>
       </View>
 
       <View style={tw`mt-auto border-t border-gray-200`}>

@@ -84,23 +84,30 @@ const SignUpScreen = () => {
           // Perform sign-up logic here
           console.log("Sign up pressed with:", values);
           axios
-            .post(`${BASE_URL}/user/auth/register`, values, {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            })
+            .post(
+              `${BASE_URL}/user/auth/verify-email`,
+              { email: values.email },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            )
             .then((response) => {
               setLoading(false);
 
               if (response.data.success) {
-                dispatch(
-                  setUser({
-                    token: response.data.data.token,
-                  })
-                );
-                navigation.navigate("Home");
+                //TODO: Alert an otp has been sent to their mail
+                navigation.navigate("OTP", { values });
               } else {
                 console.log(response);
+                Toast.show({
+                  type: "error",
+                  position: "top",
+                  text1: response.data.errors[0],
+                  visibilityTime: 3000,
+                  autoHide: true,
+                });
               }
             })
             .catch((error) => {
@@ -145,6 +152,68 @@ const SignUpScreen = () => {
                 });
               }
             });
+          // axios
+          //   .post(`${BASE_URL}/user/auth/register`, values, {
+          //     headers: {
+          //       "Content-Type": "application/json",
+          //     },
+          //   })
+          //   .then((response) => {
+          //     setLoading(false);
+
+          //     if (response.data.success) {
+          //       dispatch(
+          //         setUser({
+          //           token: response.data.data.token,
+          //         })
+          //       );
+          //       navigation.navigate("Home");
+          //     } else {
+          //       console.log(response);
+          //     }
+          //   })
+          //   .catch((error) => {
+          //     setLoading(false);
+          //     if (error.response) {
+          //       // The request was made and the server responded with a status code
+          //       // that falls out of the range of 2xx
+          //       console.error(
+          //         "Server responded with error status:",
+          //         error.response.status
+          //       );
+          //       console.error("Error message:", error.response.data);
+          //       Toast.show({
+          //         type: "error",
+          //         position: "top",
+          //         text1: error.response.data.errors[0],
+          //         visibilityTime: 3000,
+          //         autoHide: true,
+          //       });
+          //     } else if (error.request) {
+          //       // The request was made but no response was received
+          //       console.error(
+          //         "Request made but no response received:",
+          //         error.request
+          //       );
+          //       Toast.show({
+          //         type: "error",
+          //         position: "top",
+          //         text1: "Something went wrong. please try again later.",
+          //         visibilityTime: 3000,
+          //         autoHide: true,
+          //       });
+          //     } else {
+          //       // Something happened in setting up the request that triggered an Error
+          //       console.error("Error setting up request:", error.message);
+          //       Toast.show({
+          //         type: "error",
+          //         position: "top",
+          //         text1: "Something went wrong. please try again later.",
+          //         visibilityTime: 3000,
+          //         autoHide: true,
+          //       });
+          //     }
+          //   });
         }}
       >
         {({
