@@ -21,6 +21,16 @@ const milesToKilometers = (miles) => {
   //console.log(kilometers);
   return kilometers;
 };
+
+const showToast = () => {
+  Toast.show({
+    type: "success",
+    position: "top",
+    text1: "Finding a slyft for you!",
+    // visibilityTime: 3000,
+    // autoHide: true,
+  });
+};
 const Map = () => {
   const origin = useSelector(selectOrigin);
   const destination = useSelector(selectDestination);
@@ -31,7 +41,7 @@ const Map = () => {
 
   useEffect(() => {
     if (!origin || !destination) return;
-    console.log("ORIGIN & DESTINATION")
+    console.log("ORIGIN & DESTINATION");
     console.log(origin, destination);
     //zoom and fit to markers
     mapRef.current.fitToSuppliedMarkers(["origin", "destination"], {

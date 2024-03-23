@@ -47,7 +47,7 @@ if (curHr < 12) {
   greeting += "evening";
 }
 
-const NavigateCard = () => {
+const GiveNavigateCard = () => {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
   useEffect(() => {
@@ -122,7 +122,7 @@ const NavigateCard = () => {
               })
             );
             //TODO: This should navigate if only form is valid
-            navigation.navigate("RideOptionsCard");
+            navigation.navigate("RiderOptionsCard");
           }}
           fetchDetails={true}
           returnKeyType={"search"}
@@ -182,7 +182,7 @@ const NavigateCard = () => {
         style={tw`flex-row bg-white justify-evenly py-2 mt-auto border-t border-gray-100`}
       >
         <TouchableOpacity
-          onPress={() => navigation.navigate("RideOptionsCard")}
+          onPress={() => navigation.navigate("RiderOptionsCard")}
           style={tw`flex flex-row justify-between bg-black w-24 px-4 py-3 rounded-full`}
         >
           <Icon name="car" type="font-awesome" color="white" size={16} />
@@ -190,7 +190,7 @@ const NavigateCard = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate("RideOptionsCard")}
+          onPress={() => navigation.navigate("RiderOptionsCard")}
           style={tw`flex flex-row justify-between w-24 px-4 py-3 rounded-full`}
         >
           <Icon name="car" type="font-awesome" color="black" size={16} />
@@ -198,7 +198,7 @@ const NavigateCard = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate("RideOptionsCard")}
+          onPress={() => navigation.navigate("RiderOptionsCard")}
           style={tw`flex flex-row justify-between bg-black w-24 px-4 py-3 rounded-full`}
         >
           <Icon name="car" type="font-awesome" color="white" size={16} />
@@ -209,7 +209,7 @@ const NavigateCard = () => {
   );
 };
 
-export default NavigateCard;
+export default GiveNavigateCard;
 
 const toInputBoxStyles = StyleSheet.create({
   container: {

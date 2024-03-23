@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -16,8 +16,11 @@ import axios from "axios";
 import { BASE_URL } from "@env";
 import { useDispatch } from "react-redux";
 import { setUser } from "../slices/navSlice";
+import { selectUser } from "../slices/navSlice";
+import { useSelector } from "react-redux";
 
 const LoginScreen = () => {
+  const user = useSelector(selectUser);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
@@ -29,6 +32,79 @@ const LoginScreen = () => {
   const navigateToForgotPassword = () => {
     navigation.navigate("ForgotPassword");
   };
+
+  const [messages, setMessages] = useState([]);
+  const [socket, setSocket] = useState(null);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const ws = new WebSocket("wss://socketsbay.com/wss/v2/1/demo/");
+    setSocket(ws);
+
+    ws.onopen = () => {
+      console.log("Connected to WebSocket server");
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        console.log("Received message:", message.user);
+        ws.send(
+          JSON.stringify({
+            user: "552975295sfg",
+          })
+        );
+        if (user._id.toString() === message.user.toString())
+          setMessages((prevMessages) => [...prevMessages, message]);
+      } catch (error) {
+        // console.log("definitely not for me");
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    ws.onclose = () => {
+      console.log("Disconnected from WebSocket server");
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, []);
+
+  // const sendMessage = async (message, userId) => {
+  //   console.log("got heereeee");
+  //   if (message.trim() !== "") {
+  //     // Send the message to the WebSocket server
+  //     const messageObject = { user: userId, message };
+  //     console.log("messageObject", messageObject);
+  //     ws.send("yosiiiiiiiiiiiiiiiiiiiiiiiiii");
+  //   }
+  // };
+
+  const sendMessage = (message) => {
+    if (message.trim() !== "" && socket) {
+      socket.send(
+        JSON.stringify({
+          user: "552975295sfg",
+          message: { user: "rwertweytiyrti" },
+        })
+      );
+      //setMessage("");
+    }
+  };
+  // const subscribe = (userId) => {
+  //   if (message.trim() !== "" && socket) {
+  //     socket.send(
+  //       JSON.stringify({
+  //         user: userId,
+  //       })
+  //     );
+  //     //setMessage("");
+  //   }
+  // };
 
   return (
     <KeyboardAvoidingView
@@ -77,7 +153,7 @@ const LoginScreen = () => {
         onSubmit={(values) => {
           setLoading(true);
           // Perform sign-up logic here
-          console.log("Login pressed with:", values);
+          console.log("Login pressed");
 
           axios
             .post(`${BASE_URL}/user/auth/login`, values, {
@@ -89,11 +165,26 @@ const LoginScreen = () => {
               setLoading(false);
 
               if (response.data.success) {
+                const token = response?.data.data.token;
                 dispatch(
                   setUser({
                     token: response.data.data.token,
                   })
                 );
+                axios
+                  .get(`${BASE_URL}/user/me`, {
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${token}`,
+                    },
+                  })
+                  .then((response) => {
+                    //console.log("dataaa", response.data);
+                    dispatch(
+                      setUser({ ...user, token, ...response.data.data })
+                    );
+                    subscribe(response.data.data._id.toString());
+                  });
                 navigation.navigate("Home");
               } else {
                 console.log(response);
@@ -142,6 +233,14 @@ const LoginScreen = () => {
                 });
               }
             });
+
+          // setLoading(false);
+          // dispatch(
+          //   setUser({
+          //     token: response.data.data.token,
+          //   })
+          // );
+          // navigation.navigate("Home");
         }}
       >
         {({

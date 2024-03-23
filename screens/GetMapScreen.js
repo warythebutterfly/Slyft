@@ -17,7 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const Stack = createStackNavigator();
 
-const MapScreen = () => {
+const GetMapScreen = () => {
   const navigation = useNavigation();
   return (
     <KeyboardAvoidingView
@@ -54,6 +54,6 @@ const MapScreen = () => {
   );
 };
 
-export default MapScreen;
+export default GetMapScreen;
 
 const styles = StyleSheet.create({});

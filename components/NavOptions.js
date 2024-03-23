@@ -11,13 +11,13 @@ const data = [
     id: "1",
     title: "Get a lift",
     image: "https://links.papareact.com/3pn",
-    screen: "Map",
+    screen: "GetMap",
   },
   {
     id: "2",
     title: "Give a lift",
     image: "https://links.papareact.com/3pn",
-    screen: "Map",
+    screen: "GiveMap",
   },
 ];
 

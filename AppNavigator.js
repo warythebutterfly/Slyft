@@ -5,7 +5,8 @@ import LoginScreen from "./screens/LoginScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import HomeScreen from "./screens/HomeScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
-import MapScreen from "./screens/MapScreen";
+import GetMapScreen from "./screens/GetMapScreen";
+import GiveMapScreen from "./screens/GiveMapScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import NewPasswordScreen from "./screens/NewPasswordScreen";
 
@@ -30,8 +31,13 @@ const AppNavigator = () => {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="Map"
-        component={MapScreen}
+        name="GetMap"
+        component={GetMapScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="GiveMap"
+        component={GiveMapScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
