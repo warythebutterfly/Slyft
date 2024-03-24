@@ -43,7 +43,8 @@ const HomeScreen = () => {
     validationSchema,
     onSubmit: (values) => {
       // Handle form submission here
-      console.log("Form submitted with values:", values);
+      console.log("Form submitted with values:");
+      //, values);
       // Dispatch actions or perform other logic as needed
     },
   });
@@ -77,7 +78,7 @@ const HomeScreen = () => {
           }}
           onPress={(data, details = null) => {
             formik.setFieldValue("location", data.description);
-            console.log("location", details.geometry.location);
+            // console.log("location", details.geometry.location);
             dispatch(
               setOrigin({
                 location: details.geometry.location,
@@ -125,7 +126,7 @@ const HomeScreen = () => {
           debounce={200}
           value={formik.values.location}
           onChangeText={(text) => {
-            console.log("text", text);
+            // console.log("text", text);
             this.textInput = text;
             formik.setFieldValue("location", text);
           }}

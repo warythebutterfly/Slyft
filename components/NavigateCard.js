@@ -62,7 +62,7 @@ const NavigateCard = () => {
       .then((response) => {
         if (response.data.success) {
           dispatch(setUser({ ...user, ...response.data.data }));
-          console.log(user);
+          //console.log(user);
         } else {
           console.log(response);
         }
@@ -105,7 +105,6 @@ const NavigateCard = () => {
   });
   return (
     <SafeAreaView style={tw`bg-white flex-1`}>
-      {/* TODO: Replace name after logging in */}
       <Text style={tw`text-center py-5 text-xl`}>
         {greeting}, {user.firstname}
       </Text>

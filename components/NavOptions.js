@@ -27,7 +27,7 @@ const NavOptions = ({ formik }) => {
 
   const navigateToMap = (screen) => {
     // Access formik.values and other formik methods as needed
-    console.log("Location from formik:", formik.values.location);
+    //console.log("Location from formik:", formik.values.location);
     formik.handleSubmit();
     formik.values.location && navigation.navigate(screen);
   };

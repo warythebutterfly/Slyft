@@ -6,14 +6,20 @@ import {
   FlatList,
   Image,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import tw from "tailwind-react-native-classnames";
 import Toast from "react-native-toast-message";
 import { Icon } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
 import { useSelector } from "react-redux";
-import { selectTravelTimeInformation } from "../slices/navSlice";
+import {
+  selectTravelTimeInformation,
+  selectUser,
+  selectOrigin,
+  selectDestination,
+} from "../slices/navSlice";
 
+//selecting the type of passenger i want in my car
 const data = [
   {
     id: "Slyft1",
@@ -40,25 +46,30 @@ const data = [
 
 const PassengerCard = () => {
   const navigation = useNavigation();
+  const user = useSelector(selectUser);
+  const origin = useSelector(selectOrigin);
+  const destination = useSelector(selectDestination);
   const travelTimeInformation = useSelector(selectTravelTimeInformation);
   const [selected, setSelected] = useState(null);
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [cardOptionsDisabled, setCardOptionsDisabled] = useState(false);
 
-  const handleChooseOption = () => {
-    // Show the Toast with autoHide set to false
-    // Toast.show({
-    //   type: "success",
-    //   position: "top",
-    //   text1: `Finding a passenger for you!`,
-    //   autoHide: true, // Don't hide the Toast automatically
-    // });
+  const rideInformation = {
+    type: "driver",
+    user: { ...user },
+    origin: { ...origin },
+    destination: { ...destination },
+    travelTimeInformation: { ...travelTimeInformation },
+    match: { userType: user.userType, passengerType: selected?.title },
+  };
 
+  const handleChooseOption = () => {
     setButtonDisabled(true);
     setCardOptionsDisabled(true);
     navigation.navigate("FinderCard", {
-      message: "Finding a passenger for you!",
+      message: `Finding a ${selected?.title} passenger for you!`,
       parentRoute: "PassengerCard",
+      rideInformation,
     });
   };
   return (
@@ -128,4 +139,18 @@ const PassengerCard = () => {
 
 export default PassengerCard;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  numberContainer: {
+    position: "absolute",
+    top: -5,
+    right: -10,
+    // backgroundColor: "red", // Set your desired background color
+    borderRadius: 10,
+    padding: 5,
+  },
+  numberText: {
+    color: "#000", // Set your desired text color
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+});

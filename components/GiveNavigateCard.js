@@ -62,7 +62,7 @@ const GiveNavigateCard = () => {
       .then((response) => {
         if (response.data.success) {
           dispatch(setUser({ ...user, ...response.data.data }));
-          console.log(user);
+          //console.log(user);
         } else {
           console.log(response);
         }

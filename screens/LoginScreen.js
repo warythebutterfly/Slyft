@@ -37,42 +37,44 @@ const LoginScreen = () => {
   const [socket, setSocket] = useState(null);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    const ws = new WebSocket("wss://socketsbay.com/wss/v2/1/demo/");
-    setSocket(ws);
+  // useEffect(() => {
+  //   const ws = new WebSocket("wss://socketsbay.com/wss/v2/1/demo/");
+  //   setSocket(ws);
 
-    ws.onopen = () => {
-      console.log("Connected to WebSocket server");
-    };
+  //   ws.onopen = () => {
+  //     console.log("Connected to WebSocket server");
+  //   };
 
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        //console.log("Received message:", message.user);
-        // ws.send(
-        //   JSON.stringify({
-        //     user: "552975295sfg",
-        //   })
-        // );
-        if (user._id.toString() === message.user.toString())
-          setMessages((prevMessages) => [...prevMessages, message]);
-      } catch (error) {
-        // console.log("definitely not for me");
-      }
-    };
+  //   ws.onmessage = (event) => {
+  //     try {
+  //       //console.log("Received message:", event);
 
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
+  //       const message = JSON.parse(event.data);
+  //       console.log("Received message:", message);
+  //       ws.send(
+  //         JSON.stringify({
+  //           user: "552975295sfg",
+  //         })
+  //       );
+  //       if (user._id.toString() === message.user.toString())
+  //         setMessages((prevMessages) => [...prevMessages, message]);
+  //     } catch (error) {
+  //       // console.log("definitely not for me");
+  //     }
+  //   };
 
-    ws.onclose = () => {
-      console.log("Disconnected from WebSocket server");
-    };
+  //   ws.onerror = (error) => {
+  //     console.error("WebSocket error:", error);
+  //   };
 
-    return () => {
-      ws.close();
-    };
-  }, []);
+  //   ws.onclose = () => {
+  //     console.log("Disconnected from WebSocket server");
+  //   };
+
+  //   return () => {
+  //     ws.close();
+  //   };
+  // }, []);
 
   // const sendMessage = async (message, userId) => {
   //   console.log("got heereeee");
@@ -84,17 +86,17 @@ const LoginScreen = () => {
   //   }
   // };
 
-  const sendMessage = (message) => {
-    if (message.trim() !== "" && socket) {
-      socket.send(
-        JSON.stringify({
-          user: "552975295sfg",
-          message: { user: "rwertweytiyrti" },
-        })
-      );
-      //setMessage("");
-    }
-  };
+  // const sendMessage = (message) => {
+  //   if (message.trim() !== "" && socket) {
+  //     socket.send(
+  //       JSON.stringify({
+  //         user: "552975295sfg",
+  //         message: { user: "rwertweytiyrti" },
+  //       })
+  //     );
+  //     //setMessage("");
+  //   }
+  // };
   // const subscribe = (userId) => {
   //   if (message.trim() !== "" && socket) {
   //     socket.send(
