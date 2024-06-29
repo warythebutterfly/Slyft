@@ -33,7 +33,7 @@ const GetMapScreen = () => {
           <Icon type="antdesign" color="black" name="arrowleft" />
         </TouchableOpacity>
         <TouchableOpacity
-          // onPress={() => navigation.navigate("Profile")}
+          onPress={() => navigation.navigate("Profile")}
           style={tw`bg-white absolute top-16 right-8 z-50 p-3 rounded-full`}
         >
           <Icon type="antdesign" color="black" name="contacts" />

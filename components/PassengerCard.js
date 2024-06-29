@@ -26,21 +26,21 @@ const data = [
     title: "Staff or Student",
     multiplier: 1,
     image: "https://links.papareact.com/3pn",
-    number: 3,
+    // number: 3,
   },
   {
     id: "Slyft2",
     title: "Student",
     multiplier: 1.2,
     image: "https://links.papareact.com/7pf",
-    number: 1,
+    // number: 1,
   },
   {
     id: "Slyft3",
     title: "Staff",
     multiplier: 1.75,
     image: "https://links.papareact.com/5w8",
-    number: 4,
+    // number: 4,
   },
 ];
 

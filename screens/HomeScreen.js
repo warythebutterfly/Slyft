@@ -5,7 +5,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import tw from "tailwind-react-native-classnames";
 import NavOptions from "../components/NavOptions";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -17,7 +17,10 @@ import * as Yup from "yup";
 import { Icon } from "react-native-elements";
 import NavFavourites from "../components/NavFavourites";
 import { useSelector } from "react-redux";
-import { selectUser } from "../slices/navSlice";
+import { selectUser, setUser } from "../slices/navSlice";
+import axios from "axios";
+import { BASE_URL } from "@env";
+import { useNavigation } from "@react-navigation/native";
 
 const validationSchema = Yup.object().shape({
   location: Yup.string().required("Location is required"),
@@ -36,6 +39,71 @@ const workPlace = {
 const HomeScreen = () => {
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const [userData, setUserData] = useState([]);
+  useEffect(() => {
+    axios
+      .get(`${BASE_URL}/user/me`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+      })
+      .then((response) => {
+        if (response.data.success) {
+          dispatch(setUser({ ...user, ...response.data.data }));
+          setUserData([
+            {
+              id: "1",
+              icon: "home",
+              location: "Home",
+              destination: response.data.data.homeAddress?.address,
+              description: response.data.data.homeAddress?.address,
+              geometry: {
+                location: {
+                  lat: response.data.data.homeAddress?.latitude,
+                  lng: response.data.data.homeAddress?.longitude,
+                },
+              },
+            },
+            {
+              id: "2",
+              icon: "school",
+              location: response.data.data.userType === "Student" ? "School" : "Work",
+              destination: "University of Lagos, Lagos, Nigeria",
+              description: "University of Lagos, Lagos, Nigeria",
+              geometry: { location: { lat: 6.515759, lng: 3.3898447 } },
+            },
+          ]);
+        } else {
+          setUserData([]);
+          console.log(response);
+        }
+      })
+      .catch((error) => {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.error(
+            "Server responded with error status:",
+            error.response.status
+          );
+          console.error("Error message:", error.response.data);
+          navigation.navigate("Login");
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error(
+            "Request made but no response received:",
+            error.request
+          );
+          navigation.navigate("Login");
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.error("Error setting up request:", error.message);
+          navigation.navigate("Login");
+        }
+      });
+  }, []);
   const formik = useFormik({
     initialValues: {
       location: "",
@@ -64,6 +132,12 @@ const HomeScreen = () => {
           >
             Slyft
           </Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Profile")}
+            style={tw`bg-white absolute top-2 right-4 z-50 p-3 rounded-full`}
+          >
+            <Icon type="antdesign" color="black" name="contacts" />
+          </TouchableOpacity>
         </View>
 
         <GooglePlacesAutocomplete
@@ -139,7 +213,7 @@ const HomeScreen = () => {
           </Text>
         )}
         <NavOptions formik={formik} />
-        <NavFavourites formik={formik} />
+        <NavFavourites formik={formik} data={userData} />
       </View>
     </SafeAreaView>
   );

@@ -4,7 +4,7 @@ import { store } from "./store";
 import { NavigationContainer } from "@react-navigation/native";
 import AppNavigator from "./AppNavigator";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import "react-native-gesture-handler";
+//import "react-native-gesture-handler";
 
 //set up redux
 export default function App() {

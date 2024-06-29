@@ -43,7 +43,7 @@ const FinderCard = ({ route }) => {
   };
 
   useEffect(() => {
-    const ws = new WebSocket("wss://socketsbay.com/wss/v2/1/demo/");
+    const ws = new WebSocket("wss://free.blr2.piesocket.com/v3/1?api_key=dKA1PcoBPSDNAVPH8sUOpn6LTHEaArJjWJomLZ9U&notify_self=1");
     setSocket(ws);
     ws.onopen = () => {
       console.log("Connected to WebSocket server");

@@ -38,7 +38,7 @@ const LoginScreen = () => {
   const [message, setMessage] = useState("");
 
   // useEffect(() => {
-  //   const ws = new WebSocket("wss://socketsbay.com/wss/v2/1/demo/");
+  //   const ws = new WebSocket("wss://ws.postman-echo.com/raw");
   //   setSocket(ws);
 
   //   ws.onopen = () => {

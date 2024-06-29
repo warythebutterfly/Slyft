@@ -4,7 +4,7 @@ import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 import { useSelector } from "react-redux";
-import { selectOrigin } from "../slices/navSlice";
+import { selectOrigin, selectUser } from "../slices/navSlice";
 
 const data = [
   {
@@ -24,6 +24,7 @@ const data = [
 const NavOptions = ({ formik }) => {
   const navigation = useNavigation();
   const origin = useSelector(selectOrigin);
+  const user = useSelector(selectUser);
 
   const navigateToMap = (screen) => {
     // Access formik.values and other formik methods as needed
