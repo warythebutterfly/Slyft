@@ -45,7 +45,7 @@ const GiveMapScreen = () => {
           <Map />
         </View>
         <View style={tw`h-1/2`}>
-          {vehicle.licensePlate &&
+          {vehicle?.licensePlate &&
           vehicle?.vehicleMake &&
           vehicle?.vehicleModel &&
           vehicle?.vehicleColor &&
