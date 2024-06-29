@@ -20,7 +20,7 @@ import { useSelector } from "react-redux";
 const Stack = createStackNavigator();
 
 const GiveMapScreen = () => {
-  const { vehicle, insurance } = useSelector(selectUser);
+  const { vehicle, driverLicense } = useSelector(selectUser);
   const navigation = useNavigation();
   return (
     <KeyboardAvoidingView

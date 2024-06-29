@@ -15,11 +15,12 @@ import { BASE_URL, GOOGLE_MAPS_APIKEY } from "@env";
 import { Icon } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import { useSelector } from "react-redux";
-import { selectUser } from "../slices/navSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { selectUser, setUser } from "../slices/navSlice";
 
 const ProfileScreen = () => {
   const user = useSelector(selectUser);
+  const dispatch = useDispatch();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
 
@@ -75,6 +76,8 @@ const ProfileScreen = () => {
         if (response.data.success) {
           response.data.data.dateOfBirth =
             response.data.data.dateOfBirth.split("T")[0];
+          response.data.data.driverLicense.licenseExpiryDate =
+            response.data.data.driverLicense.licenseExpiryDate.split("T")[0];
           setProfile({ ...profile, ...response.data.data });
         } else {
           setProfile({ ...profile });
@@ -193,6 +196,7 @@ const ProfileScreen = () => {
       );
 
       if (response.data.success) {
+        dispatch(setUser({ ...user, ...response.data.data }));
         alert("Profile updated successfully!");
       }
     } catch (error) {
@@ -386,7 +390,7 @@ const ProfileScreen = () => {
               handleNestedInputChange("vehicle", "licensePlate", value)
             }
           />
-          <TextInput
+          {/* <TextInput
             style={tw`border p-2`}
             placeholder="Vehicle Registration Expiry"
             value={profile.vehicle.vehicleRegistrationExpiry}
@@ -397,45 +401,45 @@ const ProfileScreen = () => {
                 value
               )
             }
-          />
+          /> */}
         </View>
       ),
     },
-    {
-      title: "Insurance",
-      content: (
-        <View>
-          <TextInput
-            style={tw`border p-2 mb-4`}
-            placeholder="Insurance Company"
-            value={profile.insurance.insuranceCompany}
-            onChangeText={(value) =>
-              handleNestedInputChange("insurance", "insuranceCompany", value)
-            }
-          />
-          <TextInput
-            style={tw`border p-2 mb-4`}
-            placeholder="Insurance Policy Number"
-            value={profile.insurance.insurancePolicyNumber}
-            onChangeText={(value) =>
-              handleNestedInputChange(
-                "insurance",
-                "insurancePolicyNumber",
-                value
-              )
-            }
-          />
-          <TextInput
-            style={tw`border p-2`}
-            placeholder="Insurance Expiry Date"
-            value={profile.insurance.insuranceExpiryDate}
-            onChangeText={(value) =>
-              handleNestedInputChange("insurance", "insuranceExpiryDate", value)
-            }
-          />
-        </View>
-      ),
-    },
+    // {
+    //   title: "Insurance",
+    //   content: (
+    //     <View>
+    //       <TextInput
+    //         style={tw`border p-2 mb-4`}
+    //         placeholder="Insurance Company"
+    //         value={profile.insurance.insuranceCompany}
+    //         onChangeText={(value) =>
+    //           handleNestedInputChange("insurance", "insuranceCompany", value)
+    //         }
+    //       />
+    //       <TextInput
+    //         style={tw`border p-2 mb-4`}
+    //         placeholder="Insurance Policy Number"
+    //         value={profile.insurance.insurancePolicyNumber}
+    //         onChangeText={(value) =>
+    //           handleNestedInputChange(
+    //             "insurance",
+    //             "insurancePolicyNumber",
+    //             value
+    //           )
+    //         }
+    //       />
+    //       <TextInput
+    //         style={tw`border p-2`}
+    //         placeholder="Insurance Expiry Date"
+    //         value={profile.insurance.insuranceExpiryDate}
+    //         onChangeText={(value) =>
+    //           handleNestedInputChange("insurance", "insuranceExpiryDate", value)
+    //         }
+    //       />
+    //     </View>
+    //   ),
+    // },
   ];
 
   return (
