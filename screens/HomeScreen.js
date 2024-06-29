@@ -53,19 +53,19 @@ const HomeScreen = () => {
         if (response.data.success) {
           dispatch(setUser({ ...user, ...response.data.data }));
           setUserData([
-            {
-              id: "1",
-              icon: "home",
-              location: "Home",
-              destination: response.data.data.homeAddress?.address,
-              description: response.data.data.homeAddress?.address,
-              geometry: {
-                location: {
-                  lat: response.data.data.homeAddress?.latitude,
-                  lng: response.data.data.homeAddress?.longitude,
-                },
-              },
-            },
+            // {
+            //   id: "1",
+            //   icon: "home",
+            //   location: "Home",
+            //   destination: response.data.data.homeAddress?.address,
+            //   description: response.data.data.homeAddress?.address,
+            //   geometry: {
+            //     location: {
+            //       lat: response.data.data.homeAddress?.latitude,
+            //       lng: response.data.data.homeAddress?.longitude,
+            //     },
+            //   },
+            // },
             {
               id: "2",
               icon: "school",

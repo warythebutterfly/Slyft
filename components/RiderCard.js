@@ -26,21 +26,21 @@ const data = [
     title: "Slyft", //staff or student driver
     multiplier: 1,
     image: "https://links.papareact.com/3pn",
-    number: 3,
+    // number: 3,
   },
   {
     id: "Slyft2",
     title: "Slyft for Student", //student driver
     multiplier: 1.2,
     image: "https://links.papareact.com/7pf",
-    number: 1,
+    // number: 1,
   },
   {
     id: "Slyft3",
     title: "Slyft for Staff", //staff driver
     multiplier: 1.75,
     image: "https://links.papareact.com/5w8",
-    number: 4,
+    // number: 4,
   },
 ];
 

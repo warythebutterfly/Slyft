@@ -17,6 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUser, setUser } from "../slices/navSlice";
+import RNPickerSelect from "react-native-picker-select";
 
 const ProfileScreen = () => {
   const user = useSelector(selectUser);
@@ -75,9 +76,14 @@ const ProfileScreen = () => {
       .then((response) => {
         if (response.data.success) {
           response.data.data.dateOfBirth =
-            response.data.data.dateOfBirth.split("T")[0];
-          response.data.data.driverLicense.licenseExpiryDate =
-            response.data.data.driverLicense.licenseExpiryDate.split("T")[0];
+            response.data.data.dateOfBirth?.split("T")[0];
+          response.data.data.driverLicense = {
+            licenseExpiryDate:
+              response.data.data.driverLicense?.licenseExpiryDate?.split(
+                "T"
+              )[0],
+          };
+
           setProfile({ ...profile, ...response.data.data });
         } else {
           setProfile({ ...profile });
@@ -242,7 +248,7 @@ const ProfileScreen = () => {
       content: (
         <TextInput
           style={tw`border p-2`}
-          placeholder="Date of Birth"
+          placeholder="Date of Birth (YYYY-MM-DD)"
           value={profile.dateOfBirth}
           onChangeText={(value) => handleInputChange("dateOfBirth", value)}
         />
@@ -259,58 +265,66 @@ const ProfileScreen = () => {
         />
       ),
     },
-    {
-      title: "Home Address",
-      content: (
-        <GooglePlacesAutocomplete
-          placeholder="Enter Address"
-          styles={{
-            container: { flex: 0 },
-            textInput: {
-              fontSize: 18,
-              borderWidth: 1,
-              borderColor: "#ddd",
-              padding: 10,
-              marginVertical: 5,
-            },
-          }}
-          fetchDetails={true}
-          onPress={(data, details = null) =>
-            handleAddressChange(data.description, details)
-          }
-          query={{
-            key: GOOGLE_MAPS_APIKEY,
-            language: "en",
-            components: "country:NG",
-          }}
-          textInputProps={{ clearButtonMode: "never" }}
-          nearbyPlacesAPI="GooglePlacesSearch"
-          debounce={200}
-        />
-      ),
-    },
+    // {
+    //   title: "Home Address",
+    //   content: (
+    //     <GooglePlacesAutocomplete
+    //       placeholder="Enter Address"
+    //       styles={{
+    //         container: { flex: 0 },
+    //         textInput: {
+    //           fontSize: 18,
+    //           borderWidth: 1,
+    //           borderColor: "#ddd",
+    //           padding: 10,
+    //           marginVertical: 5,
+    //         },
+    //       }}
+    //       fetchDetails={true}
+    //       onPress={
+    //         (data, details = null) => console.log(data.description, details)
+    //         //handleAddressChange(data.description, details)
+    //       }
+    //       query={{
+    //         key: GOOGLE_MAPS_APIKEY,
+    //         language: "en",
+    //         components: "country:NG",
+    //       }}
+    //       textInputProps={{ clearButtonMode: "never" }}
+    //       nearbyPlacesAPI="GooglePlacesSearch"
+    //       debounce={200}
+    //     />
+    //   ),
+    // },
     {
       title: "Gender",
       content: (
-        <TextInput
-          style={tw`border p-2`}
-          placeholder="Gender"
+        <RNPickerSelect
+          style={{
+            inputIOS: tw`border p-2`,
+            inputAndroid: tw`border p-2`,
+          }}
+          placeholder={{ label: "Select Gender", value: null }}
           value={profile.gender}
-          onChangeText={(value) => handleInputChange("gender", value)}
+          onValueChange={(value) => handleInputChange("gender", value)}
+          items={[
+            { label: "Male", value: "Male" },
+            { label: "Female", value: "Female" },
+          ]}
         />
       ),
     },
-    {
-      title: "Country",
-      content: (
-        <TextInput
-          style={tw`border p-2`}
-          placeholder="Country"
-          value={profile.country}
-          onChangeText={(value) => handleInputChange("country", value)}
-        />
-      ),
-    },
+    // {
+    //   title: "Country",
+    //   content: (
+    //     <TextInput
+    //       style={tw`border p-2`}
+    //       placeholder="Country"
+    //       value={profile.country}
+    //       onChangeText={(value) => handleInputChange("country", value)}
+    //     />
+    //   ),
+    // },
     {
       title: "Driver License",
       content: (
@@ -325,7 +339,7 @@ const ProfileScreen = () => {
           />
           <TextInput
             style={tw`border p-2 mb-4`}
-            placeholder="License Expiry Date"
+            placeholder="License Expiry Date (YYYY-MM-DD)"
             value={profile.driverLicense.licenseExpiryDate}
             onChangeText={(value) =>
               handleNestedInputChange(
