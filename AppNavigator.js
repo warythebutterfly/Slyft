@@ -11,6 +11,7 @@ import GiveMapScreen from "./screens/GiveMapScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import NewPasswordScreen from "./screens/NewPasswordScreen";
 import OTPScreen from "./screens/OTPScreen";
+import RateUserScreen from "./screens/RateUserScreen";
 
 const Stack = createStackNavigator();
 
@@ -51,6 +52,11 @@ const AppNavigator = () => {
         name="GiveMap"
         component={GiveMapScreen}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="RateUser"
+        component={RateUserScreen}
+        options={{ headerShown: false, gestureEnabled: false }}
       />
       <Stack.Screen
         name="ForgotPassword"

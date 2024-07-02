@@ -31,14 +31,22 @@ const DigitBox = ({ digit }) => {
   );
 };
 
-const FoundCard = ({ route }) => {
+export const generateOtp = async function (len) {
+  const digits = "0123456789";
+  let OTP = "";
+  for (let i = 0; i < len; i++) {
+    OTP += digits[Math.floor(Math.random() * 10)];
+  }
+  return OTP;
+};
+
+const FoundCard = async ({ route }) => {
   const navigation = useNavigation();
   const { message, parentRoute, rideInformation, driver, passenger } =
     route.params;
-  const digits =
-    driver?.pin.toString().split("").map(Number) ||
-    passenger?.pin.toString().split("").map(Number) ||
-    [];
+  const pin = await generateOtp(4);
+  const digits = pin.toString().split("").map(Number) || [];
+  //passenger?.pin.toString().split("").map(Number) ||
 
   return (
     <ScrollView
@@ -96,9 +104,9 @@ const FoundCard = ({ route }) => {
           </Col>
           <Col numRows={2}>
             <View style={tw`flex flex-row justify-center items-center`}>
-              {digits.map((digit, index) => (
+              {/* {digits.map((digit, index) => (
                 <DigitBox key={index} digit={digit} />
-              ))}
+              ))} */}
             </View>
           </Col>
         </Row>

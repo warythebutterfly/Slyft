@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Image,
+  KeyboardAvoidingView,
 } from "react-native";
 import tw from "tailwind-react-native-classnames";
 import axios from "axios";
@@ -18,13 +20,15 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 import { useSelector, useDispatch } from "react-redux";
 import { selectUser, setUser } from "../slices/navSlice";
 import RNPickerSelect from "react-native-picker-select";
+import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
 
 const ProfileScreen = () => {
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
-
+  const [image, setImage] = useState(null);
   const [profile, setProfile] = useState({
     firstname: "",
     lastname: "",
@@ -37,6 +41,7 @@ const ProfileScreen = () => {
       latitude: null,
       longitude: null,
     },
+    distanceThreshold: "",
     driverLicense: {
       licenseNumber: "",
       licenseExpiryDate: "",
@@ -60,6 +65,7 @@ const ProfileScreen = () => {
       availableTimeStart: "",
       availableTimeEnd: "",
     },
+    avatar: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -78,6 +84,7 @@ const ProfileScreen = () => {
           response.data.data.dateOfBirth =
             response.data.data.dateOfBirth?.split("T")[0];
           response.data.data.driverLicense = {
+            ...response.data.data.driverLicense,
             licenseExpiryDate:
               response.data.data.driverLicense?.licenseExpiryDate?.split(
                 "T"
@@ -85,6 +92,7 @@ const ProfileScreen = () => {
           };
 
           setProfile({ ...profile, ...response.data.data });
+          dispatch(setUser({ ...user, ...profile, ...response.data.data }));
         } else {
           setProfile({ ...profile });
           console.log(response);
@@ -92,8 +100,6 @@ const ProfileScreen = () => {
       })
       .catch((error) => {
         if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
           console.error(
             "Server responded with error status:",
             error.response.status
@@ -101,14 +107,12 @@ const ProfileScreen = () => {
           console.error("Error message:", error.response.data);
           navigation.navigate("Login");
         } else if (error.request) {
-          // The request was made but no response was received
           console.error(
             "Request made but no response received:",
             error.request
           );
           navigation.navigate("Login");
         } else {
-          // Something happened in setting up the request that triggered an Error
           console.error("Error setting up request:", error.message);
           navigation.navigate("Login");
         }
@@ -132,7 +136,6 @@ const ProfileScreen = () => {
   };
 
   const handleAddressChange = (address, details) => {
-    console.log("im here");
     setAddressText(address);
     setProfile((prevProfile) => ({
       ...prevProfile,
@@ -159,7 +162,7 @@ const ProfileScreen = () => {
       newErrors.licenseExpiryDate = "Invalid date format (YYYY-MM-DD)";
     }
 
-    // // Validate phone number format
+    // Validate phone number format
     if (profile.phoneNumber && !isValidPhoneNumber(profile.phoneNumber)) {
       newErrors.phoneNumber = "Invalid phone number format";
     }
@@ -169,12 +172,10 @@ const ProfileScreen = () => {
   };
 
   const isValidDateFormat = (dateString) => {
-    // Regular expression to validate date format YYYY-MM-DD
     return /^\d{4}-\d{2}-\d{2}$/.test(dateString);
   };
 
   const isValidPhoneNumber = (phoneNumber) => {
-    // Regular expression to validate phone number format
     return /^(?:(?:(?:\+?234(?:\h1)?|01)\h*)?(?:\(\d{3}\)|\d{3})|\d{4})(?:\W*\d{3})?\W*\d{4}$/.test(
       phoneNumber
     );
@@ -182,23 +183,18 @@ const ProfileScreen = () => {
 
   const handleUpdateProfile = async () => {
     if (!validate()) {
-      Alert.alert("Validation Failed");
+      Alert.alert("Validation Failed", JSON.stringify(errors));
       return;
     }
 
     try {
       setLoading(true);
-      console.log(profile);
+
+      profile.distanceThreshold = parseFloat(profile.distanceThreshold);
+
       const response = await axios.put(
         `${BASE_URL}/user/${profile._id}`, // Replace with the actual user ID
-        profile,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            // Replace with the actual authorization token if needed
-            Authorization: `Bearer ${user.token}`,
-          },
-        }
+        profile
       );
 
       if (response.data.success) {
@@ -213,8 +209,34 @@ const ProfileScreen = () => {
     }
   };
 
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 0.05, // Reduce quality to compress the image
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      // Compress the image
+      const manipResult = await ImageManipulator.manipulateAsync(
+        result.assets[0].uri,
+        [{ resize: { width: 800 } }], // Resize image to reduce size
+        {
+          compress: 0.05,
+          format: ImageManipulator.SaveFormat.JPEG,
+          base64: true,
+        }
+      );
+
+      setImage(manipResult.uri);
+      handleInputChange("avatar", manipResult.base64);
+    }
+  };
+
   const renderItem = ({ item }) => (
-    <View style={tw`mb-4`}>
+    <View style={tw`mb-4 mx-3`}>
       <Text style={tw`text-lg font-bold mb-2`}>{item.title}</Text>
       {item.content}
     </View>
@@ -222,10 +244,31 @@ const ProfileScreen = () => {
 
   const formFields = [
     {
+      title: "",
+      content: (
+        <View style={tw`items-center w-full mb-6`}>
+          {
+            <Image
+              source={{
+                uri: `data:image/jpeg;base64,${profile.avatar}`,
+              }}
+              style={tw`w-24 h-24 rounded-full mb-4`}
+            />
+          }
+          <TouchableOpacity
+            onPress={pickImage}
+            style={tw`bg-gray-200 p-2 rounded-md`}
+          >
+            <Text style={tw`text-center`}>Upload Profile Picture</Text>
+          </TouchableOpacity>
+        </View>
+      ),
+    },
+    {
       title: "First Name",
       content: (
         <TextInput
-          style={tw`border p-2`}
+          style={tw`h-12 bg-gray-100 rounded-md px-4`}
           placeholder="First Name"
           value={profile.firstname}
           onChangeText={(value) => handleInputChange("firstname", value)}
@@ -236,7 +279,7 @@ const ProfileScreen = () => {
       title: "Last Name",
       content: (
         <TextInput
-          style={tw`border p-2`}
+          style={tw`h-12 bg-gray-100 rounded-md px-4`}
           placeholder="Last Name"
           value={profile.lastname}
           onChangeText={(value) => handleInputChange("lastname", value)}
@@ -247,7 +290,7 @@ const ProfileScreen = () => {
       title: "Date of Birth",
       content: (
         <TextInput
-          style={tw`border p-2`}
+          style={tw`h-12 bg-gray-100 rounded-md px-4`}
           placeholder="Date of Birth (YYYY-MM-DD)"
           value={profile.dateOfBirth}
           onChangeText={(value) => handleInputChange("dateOfBirth", value)}
@@ -258,51 +301,20 @@ const ProfileScreen = () => {
       title: "Phone Number",
       content: (
         <TextInput
-          style={tw`border p-2`}
+          style={tw`h-12 bg-gray-100 rounded-md px-4`}
           placeholder="Phone Number"
           value={profile.phoneNumber}
           onChangeText={(value) => handleInputChange("phoneNumber", value)}
         />
       ),
     },
-    // {
-    //   title: "Home Address",
-    //   content: (
-    //     <GooglePlacesAutocomplete
-    //       placeholder="Enter Address"
-    //       styles={{
-    //         container: { flex: 0 },
-    //         textInput: {
-    //           fontSize: 18,
-    //           borderWidth: 1,
-    //           borderColor: "#ddd",
-    //           padding: 10,
-    //           marginVertical: 5,
-    //         },
-    //       }}
-    //       fetchDetails={true}
-    //       onPress={
-    //         (data, details = null) => console.log(data.description, details)
-    //         //handleAddressChange(data.description, details)
-    //       }
-    //       query={{
-    //         key: GOOGLE_MAPS_APIKEY,
-    //         language: "en",
-    //         components: "country:NG",
-    //       }}
-    //       textInputProps={{ clearButtonMode: "never" }}
-    //       nearbyPlacesAPI="GooglePlacesSearch"
-    //       debounce={200}
-    //     />
-    //   ),
-    // },
     {
       title: "Gender",
       content: (
         <RNPickerSelect
           style={{
-            inputIOS: tw`border p-2`,
-            inputAndroid: tw`border p-2`,
+            inputIOS: tw`h-12 bg-gray-100 rounded-md px-4`,
+            inputAndroid: tw`h-12 bg-gray-100 rounded-md px-4`,
           }}
           placeholder={{ label: "Select Gender", value: null }}
           value={profile.gender}
@@ -325,169 +337,234 @@ const ProfileScreen = () => {
     //     />
     //   ),
     // },
+    // {
+    //   title: "Home Address",
+    //   content: (
+    //     <GooglePlacesAutocomplete
+    //       placeholder="Enter Address"
+    //       fetchDetails={true}
+    //       onPress={(data, details = null) => {
+    //         handleAddressChange(data.description, details);
+    //       }}
+    //       query={{
+    //         key: GOOGLE_MAPS_APIKEY,
+    //         language: "en",
+    //       }}
+    //       textInputProps={{
+    //         value: addressText,
+    //         onChangeText: (text) => setAddressText(text),
+    //         placeholderTextColor: "#999",
+    //       }}
+    //       styles={{
+    //         textInput: tw`border p-2`,
+    //         container: { flex: 0 },
+    //       }}
+    //     />
+    //   ),
+    // },
     {
-      title: "Driver License",
+      title: "Distance Threshold (km)",
       content: (
-        <View>
-          <TextInput
-            style={tw`border p-2 mb-4`}
-            placeholder="License Number"
-            value={profile.driverLicense.licenseNumber}
-            onChangeText={(value) =>
-              handleNestedInputChange("driverLicense", "licenseNumber", value)
-            }
-          />
-          <TextInput
-            style={tw`border p-2 mb-4`}
-            placeholder="License Expiry Date (YYYY-MM-DD)"
-            value={profile.driverLicense.licenseExpiryDate}
-            onChangeText={(value) =>
-              handleNestedInputChange(
-                "driverLicense",
-                "licenseExpiryDate",
-                value
-              )
-            }
-          />
-          <TextInput
-            style={tw`border p-2`}
-            placeholder="License State"
-            value={profile.driverLicense.licenseState}
-            onChangeText={(value) =>
-              handleNestedInputChange("driverLicense", "licenseState", value)
-            }
-          />
-        </View>
+        <TextInput
+          style={tw`h-12 bg-gray-100 rounded-md px-4`}
+          placeholder="Distance Threshold (km)"
+          value={profile.distanceThreshold.toString()}
+          onChangeText={(value) =>
+            handleInputChange("distanceThreshold", value)
+          }
+          keyboardType="numeric"
+        />
       ),
     },
     {
-      title: "Vehicle",
+      title: "Driver License Number",
       content: (
-        <View>
-          <TextInput
-            style={tw`border p-2 mb-4`}
-            placeholder="Vehicle Make"
-            value={profile.vehicle.vehicleMake}
-            onChangeText={(value) =>
-              handleNestedInputChange("vehicle", "vehicleMake", value)
-            }
-          />
-          <TextInput
-            style={tw`border p-2 mb-4`}
-            placeholder="Vehicle Model"
-            value={profile.vehicle.vehicleModel}
-            onChangeText={(value) =>
-              handleNestedInputChange("vehicle", "vehicleModel", value)
-            }
-          />
-          <TextInput
-            style={tw`border p-2 mb-4`}
-            placeholder="Vehicle Year"
-            value={profile.vehicle.vehicleYear}
-            onChangeText={(value) =>
-              handleNestedInputChange("vehicle", "vehicleYear", value)
-            }
-          />
-          <TextInput
-            style={tw`border p-2 mb-4`}
-            placeholder="Vehicle Color"
-            value={profile.vehicle.vehicleColor}
-            onChangeText={(value) =>
-              handleNestedInputChange("vehicle", "vehicleColor", value)
-            }
-          />
-          <TextInput
-            style={tw`border p-2 mb-4`}
-            placeholder="License Plate"
-            value={profile.vehicle.licensePlate}
-            onChangeText={(value) =>
-              handleNestedInputChange("vehicle", "licensePlate", value)
-            }
-          />
-          {/* <TextInput
-            style={tw`border p-2`}
-            placeholder="Vehicle Registration Expiry"
-            value={profile.vehicle.vehicleRegistrationExpiry}
-            onChangeText={(value) =>
-              handleNestedInputChange(
-                "vehicle",
-                "vehicleRegistrationExpiry",
-                value
-              )
-            }
-          /> */}
-        </View>
+        <TextInput
+          style={tw`h-12 bg-gray-100 rounded-md px-4`}
+          placeholder="Driver License Number"
+          value={profile.driverLicense.licenseNumber}
+          onChangeText={(value) =>
+            handleNestedInputChange("driverLicense", "licenseNumber", value)
+          }
+        />
+      ),
+    },
+    {
+      title: "Driver License Expiry Date",
+      content: (
+        <TextInput
+          style={tw`h-12 bg-gray-100 rounded-md px-4`}
+          placeholder="Driver License Expiry Date (YYYY-MM-DD)"
+          value={profile.driverLicense.licenseExpiryDate}
+          onChangeText={(value) =>
+            handleNestedInputChange("driverLicense", "licenseExpiryDate", value)
+          }
+        />
+      ),
+    },
+    {
+      title: "Driver License State",
+      content: (
+        <TextInput
+          style={tw`h-12 bg-gray-100 rounded-md px-4`}
+          placeholder="Driver License State"
+          value={profile.driverLicense.licenseState}
+          onChangeText={(value) =>
+            handleNestedInputChange("driverLicense", "licenseState", value)
+          }
+        />
+      ),
+    },
+    {
+      title: "Vehicle Make",
+      content: (
+        <TextInput
+          style={tw`h-12 bg-gray-100 rounded-md px-4`}
+          placeholder="Vehicle Make"
+          value={profile.vehicle.vehicleMake}
+          onChangeText={(value) =>
+            handleNestedInputChange("vehicle", "vehicleMake", value)
+          }
+        />
+      ),
+    },
+    {
+      title: "Vehicle Model",
+      content: (
+        <TextInput
+          style={tw`h-12 bg-gray-100 rounded-md px-4`}
+          placeholder="Vehicle Model"
+          value={profile.vehicle.vehicleModel}
+          onChangeText={(value) =>
+            handleNestedInputChange("vehicle", "vehicleModel", value)
+          }
+        />
+      ),
+    },
+    {
+      title: "Vehicle Year",
+      content: (
+        <TextInput
+          style={tw`h-12 bg-gray-100 rounded-md px-4`}
+          placeholder="Vehicle Year"
+          value={profile.vehicle.vehicleYear}
+          onChangeText={(value) =>
+            handleNestedInputChange("vehicle", "vehicleYear", value)
+          }
+        />
+      ),
+    },
+    {
+      title: "Vehicle Color",
+      content: (
+        <TextInput
+          style={tw`h-12 bg-gray-100 rounded-md px-4`}
+          placeholder="Vehicle Color"
+          value={profile.vehicle.vehicleColor}
+          onChangeText={(value) =>
+            handleNestedInputChange("vehicle", "vehicleColor", value)
+          }
+        />
+      ),
+    },
+    {
+      title: "Vehicle License Plate",
+      content: (
+        <TextInput
+          style={tw`h-12 bg-gray-100 rounded-md px-4`}
+          placeholder="License Plate"
+          value={profile.vehicle.licensePlate}
+          onChangeText={(value) =>
+            handleNestedInputChange("vehicle", "licensePlate", value)
+          }
+        />
       ),
     },
     // {
-    //   title: "Insurance",
+    //   title: "Vehicle Registration Expiry Date",
     //   content: (
-    //     <View>
-    //       <TextInput
-    //         style={tw`border p-2 mb-4`}
-    //         placeholder="Insurance Company"
-    //         value={profile.insurance.insuranceCompany}
-    //         onChangeText={(value) =>
-    //           handleNestedInputChange("insurance", "insuranceCompany", value)
-    //         }
-    //       />
-    //       <TextInput
-    //         style={tw`border p-2 mb-4`}
-    //         placeholder="Insurance Policy Number"
-    //         value={profile.insurance.insurancePolicyNumber}
-    //         onChangeText={(value) =>
-    //           handleNestedInputChange(
-    //             "insurance",
-    //             "insurancePolicyNumber",
-    //             value
-    //           )
-    //         }
-    //       />
-    //       <TextInput
-    //         style={tw`border p-2`}
-    //         placeholder="Insurance Expiry Date"
-    //         value={profile.insurance.insuranceExpiryDate}
-    //         onChangeText={(value) =>
-    //           handleNestedInputChange("insurance", "insuranceExpiryDate", value)
-    //         }
-    //       />
-    //     </View>
+    //     <TextInput
+    //       style={tw`h-12 bg-gray-100 rounded-md px-4`}
+    //       placeholder="Vehicle Registration Expiry Date (YYYY-MM-DD)"
+    //       value={profile.vehicle.vehicleRegistrationExpiry}
+    //       onChangeText={(value) =>
+    //         handleNestedInputChange(
+    //           "vehicle",
+    //           "vehicleRegistrationExpiry",
+    //           value
+    //         )
+    //       }
+    //     />
+    //   ),
+    // },
+    // {
+    //   title: "Insurance Company",
+    //   content: (
+    //     <TextInput
+    //       style={tw`border p-2`}
+    //       placeholder="Insurance Company"
+    //       value={profile.insurance.insuranceCompany}
+    //       onChangeText={(value) =>
+    //         handleNestedInputChange("insurance", "insuranceCompany", value)
+    //       }
+    //     />
+    //   ),
+    // },
+    // {
+    //   title: "Insurance Policy Number",
+    //   content: (
+    //     <TextInput
+    //       style={tw`border p-2`}
+    //       placeholder="Insurance Policy Number"
+    //       value={profile.insurance.insurancePolicyNumber}
+    //       onChangeText={(value) =>
+    //         handleNestedInputChange("insurance", "insurancePolicyNumber", value)
+    //       }
+    //     />
+    //   ),
+    // },
+    // {
+    //   title: "Insurance Expiry Date",
+    //   content: (
+    //     <TextInput
+    //       style={tw`border p-2`}
+    //       placeholder="Insurance Expiry Date (YYYY-MM-DD)"
+    //       value={profile.insurance.insuranceExpiryDate}
+    //       onChangeText={(value) =>
+    //         handleNestedInputChange("insurance", "insuranceExpiryDate", value)
+    //       }
+    //     />
     //   ),
     // },
   ];
 
   return (
-    <SafeAreaView style={tw`bg-white h-full`}>
+    <KeyboardAvoidingView
+      behavior="padding"
+      style={tw`flex-1 justify-center pt-10 bg-white`}
+    >
       <FlatList
         data={formFields}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={tw`p-4`}
-        ListHeaderComponent={
-          <View style={tw`flex-row items-center justify-between mb-4`}>
-            <Text style={tw`text-lg font-bold`}>Edit Profile</Text>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Icon type="antdesign" name="close" />
+        ListFooterComponent={
+          <View style={tw`mt-4 mx-3`}>
+            <TouchableOpacity
+              style={tw`bg-gray-800 p-4 rounded-md w-full mb-14`}
+              onPress={handleUpdateProfile}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={tw`text-white text-center font-bold`}>
+                  Update Profile
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
         }
-        ListFooterComponent={
-          <TouchableOpacity
-            style={tw`bg-gray-800 p-4 rounded-md w-full mb-14`}
-            onPress={handleUpdateProfile}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Text style={tw`text-white text-center font-bold text-lg`}>
-                Update Profile
-              </Text>
-            )}
-          </TouchableOpacity>
-        }
       />
-    </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 

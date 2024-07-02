@@ -5,7 +5,7 @@ import tw from "tailwind-react-native-classnames";
 import Toast from "react-native-toast-message";
 import RiderCard from "./RiderCard";
 import FinderCard from "./FinderCard";
-import FoundCard from "./FoundCard";
+import FoundDriverCard from "./FoundDriverCard";
 
 const Stack = createStackNavigator();
 
@@ -25,10 +25,10 @@ const RideOptionsCard = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="FoundCard"
-          component={FoundCard}
+          name="FoundDriverCard"
+          component={FoundDriverCard}
           // initialParams={{ message: "Finding a passenger for you!" }}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, gestureEnabled: false }}
         />
       </Stack.Navigator>
       <Toast innerRef={(ref) => Toast.setRef(ref)} />
