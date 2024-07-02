@@ -11,10 +11,6 @@
             "distribution": "internal",
             "android": {
                 "buildType": "apk"
-            },
-            "env": {
-                "BASE_URL": "https://slyft.onrender.com/v1",
-                "GOOGLE_MAPS_APIKEY": "AIzaSyAn5E_N6HBisZSWd-wI_wrUgjR-ZpdBp_k"
             }
         },
         "production": {}
