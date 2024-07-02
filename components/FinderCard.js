@@ -5,6 +5,7 @@ import {
   View,
   TouchableOpacity,
   ActivityIndicator,
+  BackHandler,
 } from "react-native";
 import tw from "tailwind-react-native-classnames";
 import Toast from "react-native-toast-message";
@@ -320,8 +321,20 @@ const FinderCard = ({ route }) => {
       }
     });
 
-    return unsubscribe;
-  }, [navigation, socket]);
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        console.log("User pressed the back button");
+        handleCancelPress();
+        return true;
+      }
+    );
+
+    return () => {
+      unsubscribe();
+      backHandler.remove();
+    };
+  }, [navigation]);
 
   return (
     <>
