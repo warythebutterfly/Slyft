@@ -128,7 +128,7 @@ const FoundPassengerCard = ({ route }) => {
 
         <View style={styles.ratingContainer}>
           <Icon name="star" type="font-awesome" color="#000" size={30} />
-          <Text style={styles.ratingText}>{passenger.user?.rating}</Text>
+          <Text style={styles.ratingText}>{passenger.user?.rating.toFixed(2)}</Text>
         </View>
 
         <View style={styles.passengerNameContainer}>

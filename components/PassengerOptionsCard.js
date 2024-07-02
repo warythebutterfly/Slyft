@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -5,8 +6,8 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
+  ActivityIndicator,
 } from "react-native";
-import React, { useState, useEffect } from "react";
 import tw from "tailwind-react-native-classnames";
 import Toast from "react-native-toast-message";
 import { Icon } from "react-native-elements";
@@ -33,17 +34,13 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 
 const PassengerOptionsCard = ({ route }) => {
   const { matches, rideInformation } = route.params;
-  console.log(matches[0].passengers);
-
-  useEffect(() => {
-    //find more passengers
-  }, []);
-
   const navigation = useNavigation();
   const user = useSelector(selectUser);
   const [selected, setSelected] = useState(null);
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [cardOptionsDisabled, setCardOptionsDisabled] = useState(false);
+  const [passengers, setPassengers] = useState(matches[0].passengers);
+  const [loading, setLoading] = useState(true);
 
   const handleChooseOption = (passenger) => {
     setButtonDisabled(true);
@@ -73,130 +70,148 @@ const PassengerOptionsCard = ({ route }) => {
             pin: response.data.data.pin,
           });
         } else {
-          console.log(
-            "-----------------------------------------------ERROR--------------------------------------------"
-          );
-          console.log(response);
+          console.error("Error accepting ride:", response);
         }
       })
       .catch((error) => {
-        if (error.response) {
-          console.error(
-            "Server responded with error status:",
-            error.response.status
-          );
-          console.error("Error message:", error.response.data);
-          navigation.navigate("PassengerOptionsCard", {
-            parentRoute: "FinderCard",
-            rideInformation,
-            matches,
-          });
-        } else if (error.request) {
-          console.error(
-            "Request made but no response received:",
-            error.request
-          );
-          navigation.navigate("PassengerOptionsCard", {
-            parentRoute: "FinderCard",
-            rideInformation,
-            matches,
-          });
-        } else {
-          console.error("Error setting up request:", error.message);
-          navigation.navigate("PassengerOptionsCard", {
-            parentRoute: "FinderCard",
-            rideInformation,
-            matches,
-          });
-        }
+        console.error("Error accepting ride:", error);
       });
   };
 
+  useEffect(() => {
+    const fetchPassengers = () => {
+      axios
+        .post(`${BASE_URL}/driver/get-passengers`, {
+          driver: matches[0].driver,
+        })
+        .then((response) => {
+          if (response.data.success) {
+            setPassengers(response.data.data[0].passengers);
+          } else {
+            console.error("Error fetching passengers:", response);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching passengers:", error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    };
+
+    const interval = setInterval(fetchPassengers, 5000); // Fetch every 5 seconds
+    fetchPassengers(); // Initial fetch
+
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, [rideInformation]);
+
   return (
     <>
-      <View>
-        <TouchableOpacity
-          style={tw`absolute top-3 left-5 z-50 p-3 rounded-full`}
-          onPress={() => navigation.navigate("FinderCard")}
-        >
-          <Icon name="chevron-left" type="fontawesome" />
-        </TouchableOpacity>
-
-        <Text style={tw`text-center text-xl py-5`}>Select your passenger</Text>
-      </View>
-      <FlatList
-        style={tw`h-40`}
-        data={matches[0].passengers}
-        keyExtractor={(item) => item.user._id}
-        renderItem={({ item }) => (
+      <>
+        <View>
           <TouchableOpacity
-            onPress={() => {
-              setSelected(item);
-              setButtonDisabled(false);
-            }}
-            style={tw`flex-row justify-between items-center pl-4 pr-2 py-4 ${
-              item.user._id === selected?.user._id &&
-              "m-2 bg-gray-200 border-2 rounded-lg"
-            }`}
+            style={tw`absolute top-3 left-5 z-50 p-3 rounded-full`}
+            onPress={() => navigation.navigate("FinderCard")}
           >
-            {item.user.avatar ? (
-              <Image
-                style={styles.avatar}
-                source={{ uri: `data:image/jpeg;base64,${item.user.avatar}` }}
-              />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Icon name="user" type="font-awesome" size={24} color="#ccc" />
-              </View>
-            )}
-            <View style={tw`flex-1 ml-4`}>
-              <Text style={tw`text-xl font-semibold`}>
-                {item.user.firstname} {item.user.lastname} ({item.user.gender}{" "}
-                {item.user.userType})
-              </Text>
-              <Text>Location: {item.origin.description}</Text>
-              <Text>Destination: {item.destination.description}</Text>
-              <Text>
-                You are{" "}
-                {calculateDistance(
-                  matches[0].driver.origin.location.lat,
-                  matches[0].driver.origin.location.lng,
-                  item.origin.location.lat,
-                  item.origin.location.lng
-                ).toFixed(2)}{" "}
-                km apart
-              </Text>
-            </View>
-            <View style={tw`flex items-center`}>
-              <View style={styles.ratingContainer}>
-                <Icon
-                  name="star"
-                  type="font-awesome"
-                  color="#FFD700"
-                  size={10}
+            <Icon name="chevron-left" type="fontawesome" />
+          </TouchableOpacity>
+
+          <Text style={tw`text-center text-xl py-5`}>
+            Select your passenger
+          </Text>
+        </View>
+        <FlatList
+          style={tw`h-40`}
+          data={passengers}
+          keyExtractor={(item) => item.user._id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => {
+                setSelected(item);
+                setButtonDisabled(false);
+              }}
+              style={tw`flex-row justify-between items-center pl-4 pr-2 py-4 ${
+                item.user._id === selected?.user._id &&
+                "m-2 bg-gray-200 border-2 rounded-lg"
+              }`}
+            >
+              {item.user.avatar ? (
+                <Image
+                  style={styles.avatar}
+                  source={{
+                    uri: `data:image/jpeg;base64,${item.user.avatar}`,
+                  }}
                 />
-                <Text style={styles.ratingText}>
-                  {item.user.rating?.toFixed(2)}
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <Icon
+                    name="user"
+                    type="font-awesome"
+                    size={24}
+                    color="#ccc"
+                  />
+                </View>
+              )}
+              <View style={tw`flex-1 ml-4`}>
+                <Text style={tw`text-xl font-semibold`}>
+                  {item.user.firstname} {item.user.lastname} ({item.user.gender}{" "}
+                  {item.user.userType})
+                </Text>
+                <Text>Location: {item.origin.description}</Text>
+                <Text>Destination: {item.destination.description}</Text>
+                <Text>
+                  You are{" "}
+                  {calculateDistance(
+                    matches[0].driver.origin.location.lat,
+                    matches[0].driver.origin.location.lng,
+                    item.origin.location.lat,
+                    item.origin.location.lng
+                  ).toFixed(2)}{" "}
+                  km apart
                 </Text>
               </View>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
+              <View style={tw`flex items-center`}>
+                <View style={styles.ratingContainer}>
+                  <Icon
+                    name="star"
+                    type="font-awesome"
+                    color="#FFD700"
+                    size={10}
+                  />
+                  <Text style={styles.ratingText}>
+                    {item.user.rating?.toFixed(2)}
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
 
-      <View style={tw`mt-auto border-t border-gray-200`}>
-        <TouchableOpacity
-          disabled={!selected}
-          style={tw`bg-black py-3 m-3 rounded-md h-14 justify-center ${
-            (!selected || buttonDisabled) && "bg-gray-300"
-          }`}
-          onPress={() => handleChooseOption(selected)}
-        >
-          <Text style={tw`text-center text-white text-xl`}>
-            Pick {selected?.user.firstname}
-          </Text>
-        </TouchableOpacity>
-      </View>
+        {passengers.length < 3 && (
+          <View style={tw`flex-1 justify-center items-center mb-4`}>
+            <ActivityIndicator size="small" color="#000" />
+            {/* <Text style={tw`mt-2 text-lg font-semibold`}>
+              Fetching more passengers...
+            </Text> */}
+          </View>
+        )}
+
+        <View style={tw`mt-auto `}>
+          <TouchableOpacity
+            disabled={!selected}
+            style={tw`bg-black py-3 m-3 rounded-md h-14 justify-center ${
+              (!selected || buttonDisabled) && "bg-gray-300"
+            }`}
+            onPress={() => handleChooseOption(selected)}
+          >
+            <Text style={tw`text-center text-white text-xl`}>
+              Pick {selected?.user.firstname}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </>
+
+      <Toast innerRef={(ref) => Toast.setRef(ref)} />
     </>
   );
 };

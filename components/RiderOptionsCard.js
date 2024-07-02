@@ -27,7 +27,7 @@ const RiderOptionsCard = () => {
         <Stack.Screen
           name="PassengerOptionsCard"
           component={PassengerOptionsCard}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, gestureEnabled: false }}
         />
         {/* <Stack.Screen
           name="FoundCard"
