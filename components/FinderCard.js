@@ -30,15 +30,36 @@ const FinderCard = ({ route }) => {
       setLoading(false); // Set loading state to false
       // Perform any cancel ride logic here
       console.log("cancel pressed");
-      if (socket) {
-        socket.send(
-          JSON.stringify({
-            action: "remove",
-            type: rideInformation.match.riderType ? "passenger" : "driver",
-            payload: rideInformation,
-          })
-        );
-      }
+      axios
+        .post(`${BASE_URL}/ride/unrequest-ride`, {
+          rideInformation,
+        })
+        .then((response) => {
+          if (response.data.success) {
+            console.log(response.data.message);
+          } else {
+            console.error("Error response:", response);
+          }
+        })
+        .catch((error) => {
+          if (error.response) {
+            console.error(
+              "Server responded with error status:",
+              error.response.status
+            );
+            console.error("Error message:", error.response.data);
+            navigation.navigate("Login");
+          } else if (error.request) {
+            console.error(
+              "Request made but no response received:",
+              error.request
+            );
+            navigation.navigate("Login");
+          } else {
+            console.error("Error setting up request:", error.message);
+            navigation.navigate("Login");
+          }
+        });
 
       navigation.navigate(`${parentRoute}`);
     }, 2000); // Simulating a delay of 2 seconds for loading

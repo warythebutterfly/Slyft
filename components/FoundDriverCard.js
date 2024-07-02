@@ -167,7 +167,7 @@ const FoundDriverCard = ({ route }) => {
               <View style={tw`flex items-center mr-2`}>
                 <Icon name="user" type="font-awesome" color="#000" size={30} />
                 <View style={tw`bg-gray-200 rounded-full ml-1 px-2 py-1 my-1`}>
-                  <Text>{driver.user.rating}</Text>
+                  <Text>{driver.user.rating.toFixed(2)}</Text>
                 </View>
               </View>
               <View style={tw`flex items-center`}>
@@ -276,7 +276,7 @@ const FoundDriverCard = ({ route }) => {
             </View>
           </Col> */}
         </Row>
-        <Row>
+        {/* <Row>
           <Col numRows={2}>
             <View style={tw`mt-auto border-t border-gray-200`}>
               <TouchableOpacity
@@ -303,7 +303,7 @@ const FoundDriverCard = ({ route }) => {
               </TouchableOpacity>
             </View>
           </Col>
-        </Row>
+        </Row> */}
       </View>
     </ScrollView>
   );
