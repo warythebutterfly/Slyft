@@ -14,7 +14,7 @@
             },
             "env": {
                 "BASE_URL": "https://slyft.onrender.com/v1",
-                "GOOGLE_MAPS_APIKEY": "AIzaSyAn5E_N6HBisZSWd-wI_wrUgjR-ZpdBp_k"
+                "GOOGLE_MAPS_APIKEY": "AIzaSyCSrLGuUrg4tP6n-LfurWaGtH4JzbXRfsA"
             }
         },
         "production": {}
