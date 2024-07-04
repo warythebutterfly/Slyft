@@ -24,6 +24,7 @@ const FoundPassengerCard = ({ route }) => {
   const { passenger, pin } = route.params;
   const digits = pin.toString().split("").map(Number) || [];
   const [rideStarted, setRideStarted] = useState(false);
+  const [timer, setTimer] = useState(0);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("beforeRemove", (e) => {
@@ -36,17 +37,33 @@ const FoundPassengerCard = ({ route }) => {
     return unsubscribe;
   }, [navigation]);
 
+  useEffect(() => {
+    let timerInterval;
+    if (!rideStarted) {
+      timerInterval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer + 1);
+      }, 1000);
+    } else {
+      clearInterval(timerInterval);
+    }
+
+    return () => clearInterval(timerInterval);
+  }, [rideStarted]);
+
   const handleStartEndRide = () => {
+    const ws = new WebSocket(
+      `wss://free.blr2.piesocket.com/v3/1?api_key=dKA1PcoBPSDNAVPH8sUOpn6LTHEaArJjWJomLZ9U&notify_self=1&userId=${passenger.user._id}`
+    );
+
     if (rideStarted) {
-      console.log("driver ended ride");
-      const ws = new WebSocket(
-        `wss://free.blr2.piesocket.com/v3/1?api_key=dKA1PcoBPSDNAVPH8sUOpn6LTHEaArJjWJomLZ9U&notify_self=1&userId=${passenger.user._id}`
-      );
+      console.log("Driver ended ride");
+
       ws.onopen = () => {
         console.log("Connected passenger to WebSocket server");
         ws.send(
           JSON.stringify({
             user: passenger.user._id,
+            navigate: true,
           })
         );
       };
@@ -54,15 +71,26 @@ const FoundPassengerCard = ({ route }) => {
         user: passenger,
         type: "passenger",
       });
-      //send websocket message to the passengerId
-
-      //receival of message logic is implemeted on found driver card to navigate to rate user screen
       // Logic for ending the ride
     } else {
-      console.log("driver started ride");
-      setRideStarted(!rideStarted);
-      // Logic for starting the ride
+      console.log("Driver started ride");
+      ws.onopen = () => {
+        console.log("Connected passenger to WebSocket server 2");
+        ws.send(
+          JSON.stringify({
+            user: passenger.user._id,
+            toast: true,
+          })
+        );
+      };
+      setRideStarted(true);
     }
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
   return (
@@ -128,7 +156,9 @@ const FoundPassengerCard = ({ route }) => {
 
         <View style={styles.ratingContainer}>
           <Icon name="star" type="font-awesome" color="#000" size={30} />
-          <Text style={styles.ratingText}>{passenger.user?.rating.toFixed(2)}</Text>
+          <Text style={styles.ratingText}>
+            {passenger.user?.rating.toFixed(2)}
+          </Text>
         </View>
 
         <View style={styles.passengerNameContainer}>
@@ -136,6 +166,10 @@ const FoundPassengerCard = ({ route }) => {
             {passenger?.user.firstname} {passenger?.user.lastname} -{" "}
             {passenger?.user.userType} Passenger
           </Text>
+        </View>
+
+        <View style={styles.timerContainer}>
+          <Text style={styles.timerText}>{formatTime(timer)}</Text>
         </View>
 
         <TouchableOpacity
@@ -256,6 +290,15 @@ const styles = StyleSheet.create({
   passengerName: {
     fontSize: 18,
     color: "#3B82F6",
+  },
+  timerContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  timerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#FF0000",
   },
   startRideButton: {
     backgroundColor: "black",

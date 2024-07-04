@@ -185,7 +185,7 @@ const LoginScreen = () => {
                     dispatch(
                       setUser({ ...user, token, ...response.data.data })
                     );
-                    subscribe(response.data.data._id.toString());
+                    //subscribe(response.data.data._id.toString());
                   });
                 navigation.navigate("Home");
               } else {

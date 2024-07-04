@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   PanResponder,
   Animated,
+  ScrollView,
 } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Icon } from "react-native-elements";
@@ -25,20 +26,26 @@ const GiveMapScreen = () => {
   const { vehicle, driverLicense } = useSelector(selectUser);
   const navigation = useNavigation();
 
-  const [mapHeight, setMapHeight] = useState(new Animated.Value(0.5));
-  const [cardHeight, setCardHeight] = useState(new Animated.Value(0.5));
+  const [mapHeight] = useState(new Animated.Value(0.5));
+  const [cardHeight] = useState(new Animated.Value(0.5));
+  const [isDragging, setIsDragging] = useState(false);
 
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (evt, gestureState) => {
-        return Math.abs(gestureState.dy) > 10;
+        // Start the gesture if a vertical swipe is detected
+        return Math.abs(gestureState.dy) > Math.abs(gestureState.dx) && Math.abs(gestureState.dy) > 10;
+      },
+      onPanResponderGrant: () => {
+        setIsDragging(true);
       },
       onPanResponderMove: Animated.event(
         [null, { dy: cardHeight }],
         { useNativeDriver: false }
       ),
       onPanResponderRelease: (evt, gestureState) => {
-        if (gestureState.dy < 0) {
+        setIsDragging(false);
+        if (gestureState.dy < -50) {
           // Swiped up
           Animated.timing(mapHeight, {
             toValue: 0.25,
@@ -50,7 +57,7 @@ const GiveMapScreen = () => {
             duration: 300,
             useNativeDriver: false,
           }).start();
-        } else {
+        } else if (gestureState.dy > 50) {
           // Swiped down
           Animated.timing(mapHeight, {
             toValue: 0.5,
@@ -60,6 +67,16 @@ const GiveMapScreen = () => {
           Animated.timing(cardHeight, {
             toValue: 0.5,
             duration: 300,
+            useNativeDriver: false,
+          }).start();
+        } else {
+          // Return to original state if swipe is small
+          Animated.spring(mapHeight, {
+            toValue: 0.5,
+            useNativeDriver: false,
+          }).start();
+          Animated.spring(cardHeight, {
+            toValue: 0.5,
             useNativeDriver: false,
           }).start();
         }
@@ -86,17 +103,11 @@ const GiveMapScreen = () => {
         >
           <Icon type="antdesign" color="black" name="contacts" />
         </TouchableOpacity>
-        <Animated.View style={[{ height: mapHeight.interpolate({
-          inputRange: [0, 1],
-          outputRange: ["0%", "100%"]
-        }) }]}>
+        <Animated.View style={{ flex: mapHeight }}>
           <Map />
         </Animated.View>
         <Animated.View
-          style={[tw`h-1/2`, { height: cardHeight.interpolate({
-          inputRange: [0, 1],
-          outputRange: ["0%", "100%"]
-        }) }]}
+          style={[tw`h-1/2`, { flex: cardHeight }]}
           {...panResponder.panHandlers}
         >
           {vehicle?.licensePlate &&

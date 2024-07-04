@@ -7,10 +7,12 @@ import {
   ScrollView,
   Linking,
   Image,
+  BackHandler,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
+import Toast from "react-native-toast-message";
 
 const Col = ({ numRows, children }) => {
   return <View style={styles[`${numRows}col`]}>{children}</View>;
@@ -37,17 +39,20 @@ const FoundDriverCard = ({ route }) => {
 
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
-  console.log(
-    "-------------------------------------------PASSENGER-----------------------------------------------------"
-  );
-  console.log(passenger);
-  console.log(
-    "---------------------------------------MESSAGE---------------------------------------------------------"
-  );
-  console.log(message);
+
   const digits = pin.toString().split("").map(Number) || [];
 
   useEffect(() => {
+    const backAction = () => {
+      // Do nothing
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
     const unsubscribe = navigation.addListener("beforeRemove", (e) => {
       // Detect if the user swiped back
       if (e.data.action.type === "POP") {
@@ -57,13 +62,26 @@ const FoundDriverCard = ({ route }) => {
         //need an endpoint to add the passenger back into the passengers array
         //this endpoint will also notify the driver that the ride was canceled, and the driver is navigated back to passenger options card
         //handleCancelPress();
+        e.preventDefault();
       }
     });
 
-    return unsubscribe;
+    return () => {
+      backHandler.remove();
+      unsubscribe();
+    };
   }, [navigation]);
 
   useEffect(() => {
+    Toast.show({
+      type: "success",
+      position: "top",
+      text1: `Your ${
+        !passenger.match.riderType ? "Slyft" : passenger.match.riderType
+      } driver is on the way!`,
+      visibilityTime: 3000,
+      autoHide: true,
+    });
     const userId = passenger.user._id;
     const ws = new WebSocket(
       `wss://free.blr2.piesocket.com/v3/1?api_key=dKA1PcoBPSDNAVPH8sUOpn6LTHEaArJjWJomLZ9U&notify_self=1&userId=${userId}`
@@ -89,10 +107,30 @@ const FoundDriverCard = ({ route }) => {
           setMessages((prevMessages) => [...prevMessages, message]);
           //setMessage(message);
           console.log("youre seeing this cause youre the passenger");
-          navigation.navigate("RateUser", {
-            user: driver,
-            type: "driver",
-          });
+          console.log(message);
+          if (message.navigate) {
+            Toast.show({
+              type: "success",
+              position: "top",
+              text1: "Your ride has ended! Please give a rating.",
+              visibilityTime: 3000,
+              autoHide: true,
+              onHide: () => {
+                navigation.navigate("RateUser", {
+                  user: driver,
+                  type: "driver",
+                });
+              },
+            });
+          } else if (message.toast) {
+            Toast.show({
+              type: "success",
+              position: "top",
+              text1: `Your ride has started!`,
+              visibilityTime: 3000,
+              autoHide: true,
+            });
+          }
         }
       } catch (error) {
         // console.log("definitely not for me");
@@ -131,11 +169,11 @@ const FoundDriverCard = ({ route }) => {
           <Col numRows={3}>
             <Text style={tw`mt-2 px-2`}>Pick-up point</Text>
             <Text style={tw`mt-2 p-2 text-lg font-semibold mr-2 mb-1`}>
-              {driver.origin.description}
+              {passenger.origin.description}
             </Text>
             <Text style={tw`mt-1 px-2`}>Drop-off point</Text>
             <Text style={tw`mt-2 p-2 text-lg font-semibold mr-2`}>
-              {driver.destination.description}
+              {passenger.destination.description}
             </Text>
           </Col>
           <Col numRows={1}>
@@ -143,7 +181,7 @@ const FoundDriverCard = ({ route }) => {
             <Text
               style={tw`bg-black mt-2 text-lg font-semibold text-center text-white h-14 justify-center items-center p-3 mx-2`}
             >
-              {driver.travelTimeInformation.duration.text}
+              {passenger.travelTimeInformation.duration.text}
             </Text>
           </Col>
         </Row>
@@ -305,6 +343,7 @@ const FoundDriverCard = ({ route }) => {
           </Col>
         </Row> */}
       </View>
+      <Toast innerRef={(ref) => Toast.setRef(ref)} />
     </ScrollView>
   );
 };

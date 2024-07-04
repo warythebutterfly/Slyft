@@ -33,7 +33,7 @@ const NavFavourites = ({ formik, data }) => {
       .then((response) => {
         if (response.data.success) {
           dispatch(setUser({ ...user, ...response.data.data }));
-          console.log(user);
+          //console.log(user);
           data = [
             {
               id: "1",
@@ -58,7 +58,7 @@ const NavFavourites = ({ formik, data }) => {
             },
           ];
         } else {
-          console.log(response);
+          //console.log(response);
         }
       })
       .catch((error) => {

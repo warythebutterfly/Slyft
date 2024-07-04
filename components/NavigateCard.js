@@ -51,7 +51,7 @@ const NavigateCard = () => {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
   useEffect(() => {
-    console.log(user);
+    //console.log(user);
     axios
       .get(`${BASE_URL}/user/me`, {
         headers: {
@@ -64,7 +64,7 @@ const NavigateCard = () => {
           dispatch(setUser({ ...user, ...response.data.data }));
           //console.log(user);
         } else {
-          console.log(response);
+          //console.log(response);
         }
       })
       .catch((error) => {
@@ -99,7 +99,7 @@ const NavigateCard = () => {
     validationSchema,
     onSubmit: (values) => {
       // Handle form submission here
-      console.log("Form submitted with values:", values);
+      //console.log("Form submitted with values:", values);
       // Dispatch actions or perform other logic as needed
     },
   });
