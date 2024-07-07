@@ -223,7 +223,7 @@ const FoundPassengerCard = ({ route }) => {
           <View style={styles.travelTimeContainer}>
             <Text style={styles.label}>Travel time</Text>
             <Text style={styles.travelTime}>
-              {passenger.travelTimeInformation.duration.text}
+              {passenger?.travelTimeInformation?.duration?.text}
             </Text>
           </View>
         </View>
@@ -232,11 +232,11 @@ const FoundPassengerCard = ({ route }) => {
           <View style={styles.locationInfo}>
             <Text style={styles.label}>Pick-up point</Text>
             <Text style={styles.locationText}>
-              {passenger.origin.description}
+              {passenger?.origin?.description}
             </Text>
             <Text style={styles.label}>Drop-off point</Text>
             <Text style={styles.locationText}>
-              {passenger.destination.description}
+              {passenger?.destination?.description}
             </Text>
           </View>
 

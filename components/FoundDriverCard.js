@@ -168,11 +168,11 @@ const FoundDriverCard = ({ route }) => {
           <Col numRows={3}>
             <Text style={tw`mt-2 px-2`}>Pick-up point</Text>
             <Text style={tw`mt-2 p-2 text-lg font-semibold mr-2 mb-1`}>
-              {passenger.origin.description}
+              {passenger?.origin?.description}
             </Text>
             <Text style={tw`mt-1 px-2`}>Drop-off point</Text>
             <Text style={tw`mt-2 p-2 text-lg font-semibold mr-2`}>
-              {passenger.destination.description}
+              {passenger?.destination?.description}
             </Text>
           </Col>
           <Col numRows={1}>
@@ -180,7 +180,7 @@ const FoundDriverCard = ({ route }) => {
             <Text
               style={tw`bg-black mt-2 text-lg font-semibold text-center text-white h-14 justify-center items-center p-3 mx-2`}
             >
-              {passenger.travelTimeInformation.duration.text}
+              {passenger?.travelTimeInformation?.duration?.text}
             </Text>
           </Col>
         </Row>
@@ -247,7 +247,6 @@ const FoundDriverCard = ({ route }) => {
             </View>
           </Col>
         </Row>
-        {/* Additional Information Section */}
         <Row>
           <Col numRows={3}>
             <Text style={tw`mt-2 text-lg p-2 mr-2`}>Contact Driver</Text>
@@ -260,19 +259,10 @@ const FoundDriverCard = ({ route }) => {
                 {driver.user.phoneNumber}
               </Text>
             </TouchableOpacity>
-            {/* <Text style={tw`mt-2 p-2 text-lg font-semibold mr-2`}>
-              License Plate: {driver.user.vehicle.licensePlate}
-            </Text> */}
-            {/* Additional license information */}
-            {/* <Text style={tw`mt-1 p-2 text-lg mr-2`}>
-              License No: {driver.user.vehicle.licenseNumber}
-            </Text>
-            <Text style={tw`mt-1 p-2 text-lg mr-2`}>
-              License Expiry: {driver.user.vehicle.licenseExpiry}
-            </Text> */}
+           
           </Col>
           <Col numRows={1}>
-            {/* Placeholder for driver's photo */}
+           
             {driver.user.avatar ? (
               <Image
                 style={tw`w-24 h-24 rounded-full mx-auto`}
@@ -290,57 +280,6 @@ const FoundDriverCard = ({ route }) => {
             )}
           </Col>
         </Row>
-        <Row>
-          {/* <Col numRows={4}>
-            <Text style={tw`mt-2 text-lg p-2 mr-2`}>Bio or Description</Text>
-            
-            <Text style={tw`mt-2 p-2 text-lg mr-2`}>
-              Experienced driver with a clean record. Offering comfortable rides
-              with WiFi and charging ports available.
-            </Text>
-          </Col> */}
-          {/* <Col numRows={4}>
-            <View style={tw`mt-auto border-t border-gray-200`}>
-              <TouchableOpacity
-                style={tw`bg-black py-3 m-3 rounded-md h-14 justify-center 
-          `}
-                onPress={() => console.log("cancel ride pressed")}
-              >
-                <Text style={tw`text-center text-white text-xl`}>
-                  Cancel Ride
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Col> */}
-        </Row>
-        {/* <Row>
-          <Col numRows={2}>
-            <View style={tw`mt-auto border-t border-gray-200`}>
-              <TouchableOpacity
-                style={tw`bg-black py-3 m-3 rounded-md h-14 justify-center 
-          `}
-                onPress={() => handleAcceptPress()}
-              >
-                <Text style={tw`text-center text-white text-xl`}>
-                  Accept Ride
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Col>
-          <Col numRows={2}>
-            <View style={tw`mt-auto border-t border-gray-200`}>
-              <TouchableOpacity
-                style={tw`bg-black py-3 m-3 rounded-md h-14 justify-center 
-          `}
-                onPress={() => handleCancelPress()}
-              >
-                <Text style={tw`text-center text-white text-xl`}>
-                  Cancel Ride
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Col>
-        </Row> */}
       </View>
       <Toast innerRef={(ref) => Toast.setRef(ref)} />
     </ScrollView>

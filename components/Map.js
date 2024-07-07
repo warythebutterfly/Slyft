@@ -1,7 +1,8 @@
 import { StyleSheet, View, Image } from "react-native";
-import React from "react";
-import tw from "tailwind-react-native-classnames";
-
+import React, { useEffect } from "react";
+import { selectOrigin, selectDestination, setTravelTimeInformation} from "../slices/navSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { GOOGLE_MAPS_APIKEY } from "@env";
 
 const milesToKilometers = (miles) => {
   const mile = parseFloat(miles);
@@ -12,9 +13,9 @@ const milesToKilometers = (miles) => {
 };
 
 const Map = () => {
-  // const origin = useSelector(selectOrigin);
-  // const destination = useSelector(selectDestination);
-  // const dispatch = useDispatch();
+  const origin = useSelector(selectOrigin);
+  const destination = useSelector(selectDestination);
+  const dispatch = useDispatch();
   // const mapRef = useRef(null);
 
   // useEffect(() => {
@@ -25,26 +26,26 @@ const Map = () => {
   //   });
   // }, [origin, destination]);
 
-  // useEffect(() => {
-  //   if (!origin || !destination) return;
+  useEffect(() => {
+    if (!origin || !destination) return;
 
-  //   const getTravelTime = async () => {
-  //     try {
-  //       const res = await fetch(
-  //         `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${origin.description}&destinations=${destination.description}&key=${GOOGLE_MAPS_APIKEY}`
-  //       );
-  //       const data = await res.json();
-  //       data.rows[0].elements[0].distance.text = milesToKilometers(
-  //         data.rows[0].elements[0].distance.text
-  //       );
-  //       dispatch(setTravelTimeInformation(data.rows[0].elements[0]));
-  //     } catch (error) {
-  //       console.error("Error fetching travel time:", error);
-  //     }
-  //   };
+    const getTravelTime = async () => {
+      try {
+        const res = await fetch(
+          `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${origin.description}&destinations=${destination.description}&key=${GOOGLE_MAPS_APIKEY}`
+        );
+        const data = await res.json();
+        data.rows[0].elements[0].distance.text = milesToKilometers(
+          data.rows[0].elements[0].distance.text
+        );
+        dispatch(setTravelTimeInformation(data.rows[0].elements[0]));
+      } catch (error) {
+        console.error("Error fetching travel time:", error);
+      }
+    };
 
-  //   getTravelTime();
-  // }, [origin, destination, dispatch]);
+    getTravelTime();
+  }, [origin, destination, dispatch]);
 
   // if (!origin) {
   //   return null; // or a loading indicator
