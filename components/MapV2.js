@@ -66,8 +66,8 @@ const MapV2 = () => {
       style={tw`flex-1`}
       mapType="mutedStandard"
       initialRegion={{
-        latitude: origin.location.lat,
-        longitude: origin.location.lng,
+        latitude: origin.location.lat || 6.5244,
+        longitude: origin.location.lng || 3.3792,
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       }}
