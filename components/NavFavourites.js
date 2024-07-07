@@ -18,6 +18,7 @@ import {
 } from "../slices/navSlice";
 import axios from "axios";
 import { BASE_URL } from "@env";
+import { useNavigation } from "@react-navigation/native";
 
 const NavFavourites = ({ formik, data }) => {
   const dispatch = useDispatch();

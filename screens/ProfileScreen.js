@@ -28,6 +28,7 @@ const ProfileScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
+  const [spinner, setSpinner] = useState(true);
   const [image, setImage] = useState(null);
   const [profile, setProfile] = useState({
     firstname: "",
@@ -93,6 +94,7 @@ const ProfileScreen = () => {
 
           setProfile({ ...profile, ...response.data.data });
           dispatch(setUser({ ...user, ...profile, ...response.data.data }));
+          setSpinner(false);
         } else {
           setProfile({ ...profile });
           console.log(response);
@@ -247,14 +249,20 @@ const ProfileScreen = () => {
       title: "",
       content: (
         <View style={tw`items-center w-full mb-6`}>
-          {
+          {spinner ? (
+            <ActivityIndicator
+              size="large"
+              color="#000"
+              style={tw`w-24 h-24 rounded-full mb-4`}
+            />
+          ) : (
             <Image
               source={{
                 uri: `data:image/jpeg;base64,${profile.avatar}`,
               }}
               style={tw`w-24 h-24 rounded-full mb-4`}
             />
-          }
+          )}
           <TouchableOpacity
             onPress={pickImage}
             style={tw`bg-gray-200 p-2 rounded-md`}

@@ -1,15 +1,7 @@
-import { StyleSheet, View } from "react-native";
-import React, { useEffect, useRef } from "react";
-import MapView, { Marker } from "react-native-maps";
+import { StyleSheet, View, Image } from "react-native";
+import React from "react";
 import tw from "tailwind-react-native-classnames";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  selectDestination,
-  selectOrigin,
-  setTravelTimeInformation,
-} from "../slices/navSlice";
-import MapViewDirections from "react-native-maps-directions";
-import { GOOGLE_MAPS_APIKEY } from "@env";
+
 
 const milesToKilometers = (miles) => {
   const mile = parseFloat(miles);
@@ -20,46 +12,53 @@ const milesToKilometers = (miles) => {
 };
 
 const Map = () => {
-  const origin = useSelector(selectOrigin);
-  const destination = useSelector(selectDestination);
-  const dispatch = useDispatch();
-  const mapRef = useRef(null);
+  // const origin = useSelector(selectOrigin);
+  // const destination = useSelector(selectDestination);
+  // const dispatch = useDispatch();
+  // const mapRef = useRef(null);
 
-  useEffect(() => {
-    if (!origin || !destination) return;
+  // useEffect(() => {
+  //   if (!origin || !destination) return;
 
-    mapRef.current.fitToSuppliedMarkers(["origin", "destination"], {
-      edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-    });
-  }, [origin, destination]);
+  //   mapRef.current.fitToSuppliedMarkers(["origin", "destination"], {
+  //     edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+  //   });
+  // }, [origin, destination]);
 
-  useEffect(() => {
-    if (!origin || !destination) return;
+  // useEffect(() => {
+  //   if (!origin || !destination) return;
 
-    const getTravelTime = async () => {
-      try {
-        const res = await fetch(
-          `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${origin.description}&destinations=${destination.description}&key=${GOOGLE_MAPS_APIKEY}`
-        );
-        const data = await res.json();
-        data.rows[0].elements[0].distance.text = milesToKilometers(
-          data.rows[0].elements[0].distance.text
-        );
-        dispatch(setTravelTimeInformation(data.rows[0].elements[0]));
-      } catch (error) {
-        console.error("Error fetching travel time:", error);
-      }
-    };
+  //   const getTravelTime = async () => {
+  //     try {
+  //       const res = await fetch(
+  //         `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${origin.description}&destinations=${destination.description}&key=${GOOGLE_MAPS_APIKEY}`
+  //       );
+  //       const data = await res.json();
+  //       data.rows[0].elements[0].distance.text = milesToKilometers(
+  //         data.rows[0].elements[0].distance.text
+  //       );
+  //       dispatch(setTravelTimeInformation(data.rows[0].elements[0]));
+  //     } catch (error) {
+  //       console.error("Error fetching travel time:", error);
+  //     }
+  //   };
 
-    getTravelTime();
-  }, [origin, destination, dispatch]);
+  //   getTravelTime();
+  // }, [origin, destination, dispatch]);
 
-  if (!origin) {
-    return null; // or a loading indicator
-  }
+  // if (!origin) {
+  //   return null; // or a loading indicator
+  // }
 
   return (
-    <View style={{backgroundColor: 'red', flex: 1 }}/>
+    <View>
+      <Image
+        height={"100%"}
+        source={{
+          uri: `https://www.google.com/maps/d/thumbnail?mid=14hjCHb8_vkv3TpUGTdpIN4NKF84&hl=en_US`,
+        }}
+      />
+    </View>
     // <MapView
     //   ref={mapRef}
     //   style={tw`flex-1`}

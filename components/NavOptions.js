@@ -19,12 +19,12 @@ const data = [
     image: "https://links.papareact.com/3pn",
     screen: "GiveMap",
   },
-  {
-    id: "3",
-    title: "Debug",
-    image: "https://links.papareact.com/3pn",
-    screen: "Debug",
-  },
+  // {
+  //   id: "3",
+  //   title: "Debug",
+  //   image: "https://links.papareact.com/3pn",
+  //   screen: "Debug",
+  // },
 ];
 
 const NavOptions = ({ formik }) => {
