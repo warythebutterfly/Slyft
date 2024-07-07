@@ -56,9 +56,9 @@ const GetMapScreen = () => {
                     <Icon type="antdesign" color="black" name="contacts" />
                 </TouchableOpacity>
                 <Animated.View style={{ flex: mapHeight }}>
-                    <ErrorBoundary>
+                    {/* <ErrorBoundary>
                         <Map />
-                    </ErrorBoundary>
+                    </ErrorBoundary> */}
                 </Animated.View>
                 <Animated.View style={[tw`h-1/2`, { flex: cardHeight }]}>
                     <TouchableOpacity style={{ alignItems: "center", padding: 10 }} onPress={toggleHeight}>

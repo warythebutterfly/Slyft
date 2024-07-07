@@ -4,7 +4,7 @@ import { Icon } from "react-native-elements";
 import GiveNavigateCard from "../components/GiveNavigateCard";
 import RiderOptionsCard from "../components/RiderOptionsCard";
 import React from "react";
-import Map from "../components/Map";
+import MapV2 from "../components/MapV2";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 import { selectUser, setUser } from "../slices/navSlice";
@@ -29,7 +29,7 @@ const DebugScreen = () => {
                     <Icon type="antdesign" color="black" name="contacts" />
                 </TouchableOpacity>
                 <View style={tw`h-1/2`}>
-                    <Map />
+                    <MapV2 />
                 </View>
                 <View style={tw`h-1/2`}>
                     {vehicle?.licensePlate &&

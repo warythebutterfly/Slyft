@@ -10,6 +10,7 @@ import {
 } from "../slices/navSlice";
 import MapViewDirections from "react-native-maps-directions";
 import { GOOGLE_MAPS_APIKEY } from "@env";
+import { useNavigation } from "@react-navigation/native";
 
 const milesToKilometers = (miles) => {
   const mile = parseFloat(miles);
@@ -19,14 +20,15 @@ const milesToKilometers = (miles) => {
   return kilometers;
 };
 
-const Map = () => {
+const MapV2 = () => {
   const origin = useSelector(selectOrigin);
   const destination = useSelector(selectDestination);
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const mapRef = useRef(null);
 
   useEffect(() => {
-    if (!origin || !destination) return;
+    if (!origin || !destination) navigation.navigate("Home");
 
     mapRef.current.fitToSuppliedMarkers(["origin", "destination"], {
       edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
@@ -55,7 +57,7 @@ const Map = () => {
   }, [origin, destination, dispatch]);
 
   if (!origin) {
-    return null; // or a loading indicator
+    navigation.navigate("Home"); // or a loading indicator
   }
 
   return (
@@ -70,7 +72,7 @@ const Map = () => {
         longitudeDelta: 0.005,
       }}
     >
-      {origin && destination && (
+      {/* {origin && destination && (
         <MapViewDirections
           origin={{
             latitude: origin.location.lat,
@@ -107,11 +109,11 @@ const Map = () => {
           description={destination.description}
           identifier="destination"
         />
-      )}
+      )} */}
     </MapView>
   );
 };
 
-export default Map;
+export default MapV2;
 
 const styles = StyleSheet.create({});
