@@ -10,6 +10,9 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
+import { WEBSOCKET_URL } from "@env";
+import axios from "axios";
+import { BASE_URL } from "@env";
 
 const DigitBox = ({ digit }) => {
   return (
@@ -19,11 +22,27 @@ const DigitBox = ({ digit }) => {
   );
 };
 
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // Radius of the Earth in kilometers
+  const dLat = ((lat2 - lat1) * Math.PI) / 180; // Convert degrees to radians
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c; // Distance in kilometers
+  return distance;
+};
+
 const FoundPassengerCard = ({ route }) => {
   const navigation = useNavigation();
-  const { passenger, pin } = route.params;
+  const { passenger, pin, driver } = route.params;
   const digits = pin.toString().split("").map(Number) || [];
   const [rideStarted, setRideStarted] = useState(false);
+  const [tripId, setTripId] = useState("");
   const [timer, setTimer] = useState(0);
 
   useEffect(() => {
@@ -51,9 +70,7 @@ const FoundPassengerCard = ({ route }) => {
   }, [rideStarted]);
 
   const handleStartEndRide = () => {
-    const ws = new WebSocket(
-      `wss://free.blr2.piesocket.com/v3/1?api_key=dKA1PcoBPSDNAVPH8sUOpn6LTHEaArJjWJomLZ9U&notify_self=1&userId=${passenger.user._id}`
-    );
+    const ws = new WebSocket(`${WEBSOCKET_URL}&userId=${passenger.user._id}`);
 
     if (rideStarted) {
       console.log("Driver ended ride");
@@ -67,6 +84,17 @@ const FoundPassengerCard = ({ route }) => {
           })
         );
       };
+      axios.patch(
+        `${BASE_URL}/trip/update-trip/${tripId}`,
+        {
+          status: "completed",
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       navigation.navigate("RateUser", {
         user: passenger,
         type: "passenger",
@@ -84,6 +112,81 @@ const FoundPassengerCard = ({ route }) => {
         );
       };
       setRideStarted(true);
+
+      axios
+        .post(
+          `${BASE_URL}/trip/start-trip`,
+          {
+            driverId: driver.user._id,
+            passengerId: passenger.user._id,
+            driverLocation: driver.origin.location,
+            passengerLocation: passenger.origin.location,
+            driverDestination: driver.destination.location,
+            passengerDestination: passenger.destination.location,
+            distanceApart: calculateDistance(
+              driver.origin.location.lat,
+              driver.origin.location.lng,
+              passenger.origin.location.lat,
+              passenger.origin.location.lng
+            ),
+            timeElapsed: timer,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          if (response.data.success) {
+            setTripId(response.data.data._id.toString());
+          } else {
+            console.log(response);
+          }
+        });
+      // .catch((error) => {
+      //   console.log(error);
+      //   setLoading(false);
+      //   if (error.response) {
+      //     // The request was made and the server responded with a status code
+      //     // that falls out of the range of 2xx
+      //     console.error(
+      //       "Server responded with error status:",
+      //       error.response.status
+      //     );
+      //     console.error("Error message:", error.response.data);
+      //     Toast.show({
+      //       type: "error",
+      //       position: "top",
+      //       text1: error.response.data.errors[0],
+      //       visibilityTime: 3000,
+      //       autoHide: true,
+      //     });
+      //   } else if (error.request) {
+      //     // The request was made but no response was received
+      //     console.error(
+      //       "Request made but no response received:",
+      //       error.request
+      //     );
+      //     Toast.show({
+      //       type: "error",
+      //       position: "top",
+      //       text1: "Something went wrong. please try again later.",
+      //       visibilityTime: 3000,
+      //       autoHide: true,
+      //     });
+      //   } else {
+      //     // Something happened in setting up the request that triggered an Error
+      //     console.error("Error setting up request:", error.message);
+      //     Toast.show({
+      //       type: "error",
+      //       position: "top",
+      //       text1: "Something went wrong. please try again later.",
+      //       visibilityTime: 3000,
+      //       autoHide: true,
+      //     });
+      //   }
+      // });
     }
   };
 

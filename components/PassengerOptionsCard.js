@@ -68,6 +68,7 @@ const PassengerOptionsCard = ({ route }) => {
             parentRoute: "PassengerOptionsCard",
             passenger,
             pin: response.data.data.pin,
+            driver: matches[0].driver,
           });
         } else {
           console.error("Error accepting ride:", response);
@@ -88,11 +89,11 @@ const PassengerOptionsCard = ({ route }) => {
           if (response.data.success) {
             setPassengers(response.data.data[0].passengers);
           } else {
-            console.error("Error fetching passengers:", response);
+            console.error("Error fetching passengers in then:", response);
           }
         })
         .catch((error) => {
-          console.error("Error fetching passengers:", error);
+          console.error("Error fetching passengers in catch:", error);
         })
         .finally(() => {
           setLoading(false);

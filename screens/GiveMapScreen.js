@@ -6,14 +6,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
-  PanResponder,
   Animated,
-  ScrollView,
 } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Icon } from "react-native-elements";
 import GiveNavigateCard from "../components/GiveNavigateCard";
 import RiderOptionsCard from "../components/RiderOptionsCard";
+import ErrorBoundary from "../components/ErrorBoundary";
 import Map from "../components/Map";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
@@ -26,63 +25,33 @@ const GiveMapScreen = () => {
   const { vehicle, driverLicense } = useSelector(selectUser);
   const navigation = useNavigation();
 
-  const [mapHeight] = useState(new Animated.Value(0.5));
-  const [cardHeight] = useState(new Animated.Value(0.5));
-  const [isDragging, setIsDragging] = useState(false);
+  const mapHeight = useRef(new Animated.Value(0.5)).current;
+  const cardHeight = useRef(new Animated.Value(0.5)).current;
+  const arrowRotation = useRef(new Animated.Value(0)).current; // For rotating the arrow icon
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (evt, gestureState) => {
-        // Start the gesture if a vertical swipe is detected
-        return Math.abs(gestureState.dy) > Math.abs(gestureState.dx) && Math.abs(gestureState.dy) > 10;
-      },
-      onPanResponderGrant: () => {
-        setIsDragging(true);
-      },
-      onPanResponderMove: Animated.event(
-        [null, { dy: cardHeight }],
-        { useNativeDriver: false }
-      ),
-      onPanResponderRelease: (evt, gestureState) => {
-        setIsDragging(false);
-        if (gestureState.dy < -50) {
-          // Swiped up
-          Animated.timing(mapHeight, {
-            toValue: 0.25,
-            duration: 300,
-            useNativeDriver: false,
-          }).start();
-          Animated.timing(cardHeight, {
-            toValue: 0.75,
-            duration: 300,
-            useNativeDriver: false,
-          }).start();
-        } else if (gestureState.dy > 50) {
-          // Swiped down
-          Animated.timing(mapHeight, {
-            toValue: 0.5,
-            duration: 300,
-            useNativeDriver: false,
-          }).start();
-          Animated.timing(cardHeight, {
-            toValue: 0.5,
-            duration: 300,
-            useNativeDriver: false,
-          }).start();
-        } else {
-          // Return to original state if swipe is small
-          Animated.spring(mapHeight, {
-            toValue: 0.5,
-            useNativeDriver: false,
-          }).start();
-          Animated.spring(cardHeight, {
-            toValue: 0.5,
-            useNativeDriver: false,
-          }).start();
-        }
-      },
-    })
-  ).current;
+  const toggleHeight = () => {
+    Animated.timing(mapHeight, {
+      toValue: mapHeight._value === 0.5 ? 0.25 : 0.5,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+    Animated.timing(cardHeight, {
+      toValue: cardHeight._value === 0.5 ? 0.75 : 0.5,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+    Animated.timing(arrowRotation, {
+      toValue: arrowRotation._value === 0 ? 1 : 0, // Rotate to 180 degrees or back to 0
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  // Interpolating arrow rotation value
+  const arrowRotate = arrowRotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "180deg"],
+  });
 
   return (
     <KeyboardAvoidingView
@@ -104,12 +73,19 @@ const GiveMapScreen = () => {
           <Icon type="antdesign" color="black" name="contacts" />
         </TouchableOpacity>
         <Animated.View style={{ flex: mapHeight }}>
-          <Map />
+          <ErrorBoundary>
+            <Map />
+          </ErrorBoundary>
         </Animated.View>
-        <Animated.View
-          style={[tw`h-1/2`, { flex: cardHeight }]}
-          {...panResponder.panHandlers}
-        >
+        <Animated.View style={[tw`h-1/2`, { flex: cardHeight }]}>
+          <TouchableOpacity
+            style={{ alignItems: "center", padding: 10 }}
+            onPress={toggleHeight}
+          >
+            <Animated.View style={{ transform: [{ rotate: arrowRotate }] }}>
+              <Icon name="arrow-up" type="feather" />
+            </Animated.View>
+          </TouchableOpacity>
           {vehicle?.licensePlate &&
           vehicle?.vehicleMake &&
           vehicle?.vehicleModel &&

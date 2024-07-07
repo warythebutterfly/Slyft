@@ -13,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import Toast from "react-native-toast-message";
+import { WEBSOCKET_URL } from "@env";
 
 const Col = ({ numRows, children }) => {
   return <View style={styles[`${numRows}col`]}>{children}</View>;
@@ -83,9 +84,7 @@ const FoundDriverCard = ({ route }) => {
       autoHide: true,
     });
     const userId = passenger.user._id;
-    const ws = new WebSocket(
-      `wss://free.blr2.piesocket.com/v3/1?api_key=dKA1PcoBPSDNAVPH8sUOpn6LTHEaArJjWJomLZ9U&notify_self=1&userId=${userId}`
-    );
+    const ws = new WebSocket(`${WEBSOCKET_URL}&userId=${userId}`);
     setSocket(ws);
     ws.onopen = () => {
       console.log("Connected to founddriver WebSocket server");

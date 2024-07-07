@@ -11,7 +11,7 @@ import tw from "tailwind-react-native-classnames";
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
-import { BASE_URL } from "@env";
+import { BASE_URL, WEBSOCKET_URL } from "@env";
 
 const FinderCard = ({ route }) => {
   const navigation = useNavigation();
@@ -68,9 +68,7 @@ const FinderCard = ({ route }) => {
 
   useEffect(() => {
     const userId = rideInformation.user._id;
-    const ws = new WebSocket(
-      `wss://free.blr2.piesocket.com/v3/1?api_key=dKA1PcoBPSDNAVPH8sUOpn6LTHEaArJjWJomLZ9U&notify_self=1&userId=${userId}`
-    );
+    const ws = new WebSocket(`${WEBSOCKET_URL}&userId=${userId}`);
     setSocket(ws);
     ws.onopen = () => {
       console.log("Connected to WebSocket server");
