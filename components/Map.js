@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import React, { useEffect, useRef } from "react";
 import MapView, { Marker } from "react-native-maps";
 import tw from "tailwind-react-native-classnames";
@@ -59,56 +59,57 @@ const Map = () => {
   }
 
   return (
-    <MapView
-      ref={mapRef}
-      style={tw`flex-1`}
-      mapType="mutedStandard"
-      initialRegion={{
-        latitude: origin.location.lat,
-        longitude: origin.location.lng,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      }}
-    >
-      {origin && destination && (
-        <MapViewDirections
-          origin={{
-            latitude: origin.location.lat,
-            longitude: origin.location.lng,
-          }}
-          destination={{
-            latitude: destination.location.lat,
-            longitude: destination.location.lng,
-          }}
-          apikey={GOOGLE_MAPS_APIKEY}
-          strokeWidth={3}
-          strokeColor="black"
-          onError={(errorMessage) => console.error('MapViewDirections error:', errorMessage)}
-        />
-      )}
-      {origin?.location && (
-        <Marker
-          coordinate={{
-            latitude: origin.location.lat,
-            longitude: origin.location.lng,
-          }}
-          title="Origin"
-          description={origin.description}
-          identifier="origin"
-        />
-      )}
-      {destination?.location && (
-        <Marker
-          coordinate={{
-            latitude: destination.location.lat,
-            longitude: destination.location.lng,
-          }}
-          title="Destination"
-          description={destination.description}
-          identifier="destination"
-        />
-      )}
-    </MapView>
+    <View style={{backgroundColor: 'red', flex: 1 }}/>
+    // <MapView
+    //   ref={mapRef}
+    //   style={tw`flex-1`}
+    //   mapType="mutedStandard"
+    //   initialRegion={{
+    //     latitude: origin.location.lat,
+    //     longitude: origin.location.lng,
+    //     latitudeDelta: 0.005,
+    //     longitudeDelta: 0.005,
+    //   }}
+    // >
+    //   {origin && destination && (
+    //     <MapViewDirections
+    //       origin={{
+    //         latitude: origin.location.lat,
+    //         longitude: origin.location.lng,
+    //       }}
+    //       destination={{
+    //         latitude: destination.location.lat,
+    //         longitude: destination.location.lng,
+    //       }}
+    //       apikey={GOOGLE_MAPS_APIKEY}
+    //       strokeWidth={3}
+    //       strokeColor="black"
+    //       onError={(errorMessage) => console.error('MapViewDirections error:', errorMessage)}
+    //     />
+    //   )}
+    //   {origin?.location && (
+    //     <Marker
+    //       coordinate={{
+    //         latitude: origin.location.lat,
+    //         longitude: origin.location.lng,
+    //       }}
+    //       title="Origin"
+    //       description={origin.description}
+    //       identifier="origin"
+    //     />
+    //   )}
+    //   {destination?.location && (
+    //     <Marker
+    //       coordinate={{
+    //         latitude: destination.location.lat,
+    //         longitude: destination.location.lng,
+    //       }}
+    //       title="Destination"
+    //       description={destination.description}
+    //       identifier="destination"
+    //     />
+    //   )}
+    // </MapView>
   );
 };
 
