@@ -21,10 +21,10 @@ const milesToKilometers = (miles) => {
 };
 
 const MapV2 = () => {
-  const origin = useSelector(selectOrigin);
-  const destination = useSelector(selectDestination);
-  const dispatch = useDispatch();
-  const navigation = useNavigation();
+  // const origin = useSelector(selectOrigin);
+  // const destination = useSelector(selectDestination);
+  // const dispatch = useDispatch();
+  // const navigation = useNavigation();
   const mapRef = useRef(null);
 
 //   useEffect(() => {
@@ -66,8 +66,8 @@ const MapV2 = () => {
       style={tw`flex-1`}
       mapType="mutedStandard"
       initialRegion={{
-        latitude: origin.location.lat || 6.5244,
-        longitude: origin.location.lng || 3.3792,
+        latitude: 6.5244,
+        longitude: 3.3792,
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       }}
