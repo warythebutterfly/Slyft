@@ -27,38 +27,38 @@ const MapV2 = () => {
   const navigation = useNavigation();
   const mapRef = useRef(null);
 
-  useEffect(() => {
-    if (!origin || !destination) navigation.navigate("Home");
+//   useEffect(() => {
+//     if (!origin || !destination) navigation.navigate("Home");
 
-    mapRef.current.fitToSuppliedMarkers(["origin", "destination"], {
-      edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-    });
-  }, [origin, destination]);
+//     mapRef.current.fitToSuppliedMarkers(["origin", "destination"], {
+//       edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+//     });
+//   }, [origin, destination]);
 
-  useEffect(() => {
-    if (!origin || !destination) return;
+//   useEffect(() => {
+//     if (!origin || !destination) return;
 
-    const getTravelTime = async () => {
-      try {
-        const res = await fetch(
-          `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${origin.description}&destinations=${destination.description}&key=${GOOGLE_MAPS_APIKEY}`
-        );
-        const data = await res.json();
-        data.rows[0].elements[0].distance.text = milesToKilometers(
-          data.rows[0].elements[0].distance.text
-        );
-        dispatch(setTravelTimeInformation(data.rows[0].elements[0]));
-      } catch (error) {
-        console.error("Error fetching travel time:", error);
-      }
-    };
+//     const getTravelTime = async () => {
+//       try {
+//         const res = await fetch(
+//           `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${origin.description}&destinations=${destination.description}`
+//         );
+//         const data = await res.json();
+//         data.rows[0].elements[0].distance.text = milesToKilometers(
+//           data.rows[0].elements[0].distance.text
+//         );
+//         dispatch(setTravelTimeInformation(data.rows[0].elements[0]));
+//       } catch (error) {
+//         console.error("Error fetching travel time:", error);
+//       }
+//     };
 
-    getTravelTime();
-  }, [origin, destination, dispatch]);
+//     getTravelTime();
+//   }, [origin, destination, dispatch]);
 
-  if (!origin) {
-    navigation.navigate("Home"); // or a loading indicator
-  }
+//   if (!origin) {
+//     navigation.navigate("Home"); // or a loading indicator
+//   }
 
   return (
     <MapView

@@ -138,7 +138,7 @@ const LoginScreen = () => {
             .email("Invalid email")
             .test(
               "unilagEmail",
-              "Enter a student or staff email address",
+              "Enter your student or staff email address",
               function (value) {
                 // Check if the email ends with either "@live.unilag.edu.ng" or "@unilag.edu.ng"
                 if (value.endsWith("@live.unilag.edu.ng")) {
