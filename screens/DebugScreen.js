@@ -19,7 +19,7 @@ import { useSelector } from "react-redux";
 
 const Stack = createStackNavigator();
 
-const GiveMapScreen = () => {
+const DebugScreen = () => {
   const { vehicle, driverLicense } = useSelector(selectUser);
   const navigation = useNavigation();
   return (
@@ -41,9 +41,7 @@ const GiveMapScreen = () => {
         >
           <Icon type="antdesign" color="black" name="contacts" />
         </TouchableOpacity>
-        <View style={tw`h-1/2`}>
-          <Map />
-        </View>
+        <View style={tw`h-1/2`}>{/* <Map /> */}</View>
         <View style={tw`h-1/2`}>
           {vehicle?.licensePlate &&
           vehicle?.vehicleMake &&
@@ -84,6 +82,6 @@ const GiveMapScreen = () => {
   );
 };
 
-export default GiveMapScreen;
+export default DebugScreen;
 
 const styles = StyleSheet.create({});

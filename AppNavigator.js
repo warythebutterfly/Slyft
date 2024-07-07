@@ -8,6 +8,7 @@ import ProfileScreen from "./screens/ProfileScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import GetMapScreen from "./screens/GetMapScreen";
 import GiveMapScreen from "./screens/GiveMapScreen";
+import DebugScreen from "./screens/DebugScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import NewPasswordScreen from "./screens/NewPasswordScreen";
 import OTPScreen from "./screens/OTPScreen";
@@ -51,6 +52,11 @@ const AppNavigator = () => {
       <Stack.Screen
         name="GiveMap"
         component={GiveMapScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Debug"
+        component={DebugScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
