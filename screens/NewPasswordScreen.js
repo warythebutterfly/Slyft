@@ -14,11 +14,11 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import axios from "axios";
 import { BASE_URL } from "@env";
-import { useDispatch } from "react-redux";
-import { setUser } from "../slices/navSlice";
+import { useSelector } from "react-redux";
+import { selectUser } from "../slices/navSlice";
 
-const ForgotPasswordScreen = () => {
-  const dispatch = useDispatch();
+const NewPasswordScreen = () => {
+  const user = useSelector(selectUser);
   const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
@@ -26,6 +26,7 @@ const ForgotPasswordScreen = () => {
   const navigateToLogin = () => {
     navigation.navigate("Login");
   };
+
 
   return (
     <KeyboardAvoidingView
@@ -36,7 +37,7 @@ const ForgotPasswordScreen = () => {
         <Text
           style={{
             height: 100,
-            //fontFamily: "ProximaNova-Bold", // Adjust based on the actual font file and variant you have
+            // fontFamily: "ProximaNova-Bold", // Adjust based on the actual font file and variant you have
             fontSize: 60,
             fontWeight: "bold",
             color: "#000", // Set your desired color
@@ -48,33 +49,26 @@ const ForgotPasswordScreen = () => {
 
       <Formik
         initialValues={{
-          email: "",
+          password: "",
+          confirmPassword: "",
         }}
         validationSchema={yup.object().shape({
-          email: yup
+          password: yup.string().required("Password is required"),
+          confirmPassword: yup
             .string()
-            .email("Invalid email")
-            .test(
-              "unilagEmail",
-              "Enter your student or staff email address",
-              function (value) {
-                // Check if the email ends with either "@live.unilag.edu.ng" or "@unilag.edu.ng"
-                if (value.endsWith("@live.unilag.edu.ng")) {
-                  // Check if the matric number has 9 digits
-                  const matricNumber = value.split("@")[0]; // Extract the matric number
-                  return matricNumber.length === 9;
-                }
-                return value.endsWith("@unilag.edu.ng");
-              }
-            )
-            .required("Email is required"),
+            .oneOf([yup.ref("password"), null], "Passwords must match"),
         })}
         onSubmit={(values) => {
+          values.email = user.email;
+          values.newPassword = values.password;
+          values.otp = user.otp;
+          values.type = "forgot";
           setLoading(true);
-          // Perform Forgot password logic here
-          console.log("Submit pressed with:", values);
+          // Perform sign-up logic here
+          console.log("Reset pressed with:", values);
+
           axios
-            .post(`${BASE_URL}/user/auth/forgot-password`, values, {
+            .post(`${BASE_URL}/user/auth/password-reset`, values, {
               headers: {
                 "Content-Type": "application/json",
               },
@@ -83,26 +77,22 @@ const ForgotPasswordScreen = () => {
               setLoading(false);
 
               if (response.data.success) {
-                dispatch(
-                  setUser({
-                    email: values.email,
-                  })
-                );
                 Toast.show({
                   type: "success",
                   position: "top",
-                  text1: `An otp has been sent to ${values.email}. Use this otp to reset your password`,
+                  text1: response.data.message,
                   visibilityTime: 3000,
                   autoHide: true,
                 });
                 setTimeout(() => {
-                  navigation.navigate("ResetPassword");
+                  navigation.navigate("Login");
                 }, 2000);
               } else {
                 console.log(response);
               }
             })
             .catch((error) => {
+              console.log(error);
               setLoading(false);
               if (error.response) {
                 // The request was made and the server responded with a status code
@@ -158,15 +148,29 @@ const ForgotPasswordScreen = () => {
             <View style={tw`w-full mb-6`}>
               <TextInput
                 style={tw`h-12 bg-gray-100 rounded-md px-4`}
-                placeholder="Email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                onChangeText={handleChange("email")}
-                onBlur={handleBlur("email")}
-                value={values.email}
+                placeholder="New Password"
+                secureTextEntry
+                onChangeText={handleChange("password")}
+                onBlur={handleBlur("password")}
+                value={values.password}
               />
-              {touched.email && errors.email && (
-                <Text style={tw`text-red-500 mt-2`}>{errors.email}</Text>
+              {touched.password && errors.password && (
+                <Text style={tw`text-red-500 mt-2`}>{errors.password}</Text>
+              )}
+            </View>
+            <View style={tw`w-full mb-6`}>
+              <TextInput
+                style={tw`h-12 bg-gray-100 rounded-md px-4`}
+                placeholder="Confirm New Password"
+                secureTextEntry
+                onChangeText={handleChange("confirmPassword")}
+                onBlur={handleBlur("confirmPassword")}
+                value={values.confirmPassword}
+              />
+              {touched.confirmPassword && errors.confirmPassword && (
+                <Text style={tw`text-red-500 mt-2`}>
+                  {errors.confirmPassword}
+                </Text>
               )}
             </View>
 
@@ -197,4 +201,4 @@ const ForgotPasswordScreen = () => {
   );
 };
 
-export default ForgotPasswordScreen;
+export default NewPasswordScreen;

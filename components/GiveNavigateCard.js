@@ -1,29 +1,29 @@
 import {
   StyleSheet,
-  View,
   Text,
+  View,
   SafeAreaView,
   TouchableOpacity,
 } from "react-native";
-import React, { useEffect, useState } from "react";
 import tw from "tailwind-react-native-classnames";
-import NavOptions from "../components/NavOptions";
+import { Icon } from "react-native-elements";
+import React, { useEffect } from "react";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { GOOGLE_MAPS_APIKEY } from "@env";
 import { useDispatch } from "react-redux";
 import { setDestination, setOrigin } from "../slices/navSlice";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Icon } from "react-native-elements";
-import NavFavourites from "../components/NavFavourites";
-import { useSelector } from "react-redux";
-import { selectUser, setUser } from "../slices/navSlice";
+import { useNavigation } from "@react-navigation/native";
+import NavFavourites from "./NavFavourites";
 import axios from "axios";
 import { BASE_URL } from "@env";
-import { useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
+import { selectUser } from "../slices/navSlice";
+import { setUser } from "../slices/navSlice";
 
 const validationSchema = Yup.object().shape({
-  location: Yup.string().required("Location is required"),
+  location: Yup.string().required("Destination is required"),
 });
 
 //TODO: get actual lat and long from user
@@ -36,12 +36,22 @@ const workPlace = {
   geometry: { location: { lat: 6.515759, lng: 3.3898447 } },
 };
 
-const HomeScreen = () => {
-  const user = useSelector(selectUser);
+var today = new Date();
+var curHr = today.getHours();
+let greeting = "Good ";
+if (curHr < 12) {
+  greeting += "morning";
+} else if (curHr < 18) {
+  greeting += "afternoon";
+} else {
+  greeting += "evening";
+}
+
+const GiveNavigateCard = () => {
   const dispatch = useDispatch();
-  const navigation = useNavigation();
-  const [userData, setUserData] = useState([]);
+  const user = useSelector(selectUser);
   useEffect(() => {
+    //console.log(user);
     axios
       .get(`${BASE_URL}/user/me`, {
         headers: {
@@ -52,32 +62,9 @@ const HomeScreen = () => {
       .then((response) => {
         if (response.data.success) {
           dispatch(setUser({ ...user, ...response.data.data }));
-          setUserData([
-            // {
-            //   id: "1",
-            //   icon: "home",
-            //   location: "Home",
-            //   destination: response.data.data.homeAddress?.address,
-            //   description: response.data.data.homeAddress?.address,
-            //   geometry: {
-            //     location: {
-            //       lat: response.data.data.homeAddress?.latitude,
-            //       lng: response.data.data.homeAddress?.longitude,
-            //     },
-            //   },
-            // },
-            {
-              id: "2",
-              icon: "school",
-              location: response.data.data.userType === "Student" ? "School" : "Work",
-              destination: "University of Lagos, Lagos, Nigeria",
-              description: "University of Lagos, Lagos, Nigeria",
-              geometry: { location: { lat: 6.515759, lng: 3.3898447 } },
-            },
-          ]);
+          //console.log(user);
         } else {
-          setUserData([]);
-          console.log(response);
+          //console.log(response);
         }
       })
       .catch((error) => {
@@ -104,62 +91,38 @@ const HomeScreen = () => {
         }
       });
   }, []);
+  const navigation = useNavigation();
   const formik = useFormik({
     initialValues: {
-      location: "",
+      destination: "",
     },
     validationSchema,
     onSubmit: (values) => {
       // Handle form submission here
-      //console.log("Form submitted with values:");
-      //, values);
+      //console.log("Form submitted with values:", values);
       // Dispatch actions or perform other logic as needed
     },
   });
-
   return (
-    <SafeAreaView style={tw`bg-white h-full`}>
-      <View style={tw`p-5`}>
-        <View>
-          <Text
-            style={{
-              height: 100,
-              //   fontFamily: "ProximaNova-Bold", // Adjust based on the actual font file and variant you have
-              fontSize: 60,
-              fontWeight: "bold",
-              color: "#000", // Set your desired color
-            }}
-          >
-            Slyft
-          </Text>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Profile")}
-            style={tw`bg-white absolute top-2 right-4 z-50 p-3 rounded-full`}
-          >
-            <Icon type="antdesign" color="black" name="contacts" />
-          </TouchableOpacity>
-        </View>
-
+    <SafeAreaView style={tw`bg-white flex-1`}>
+      {/* TODO: Replace name after logging in */}
+      <Text style={tw`text-center py-5 text-xl`}>
+        {greeting}, {user.firstname}
+      </Text>
+      <View style={tw`border-t border-gray-200 flex-shrink`}>
         <GooglePlacesAutocomplete
-          placeholder="Where From?"
-          styles={{
-            container: {
-              flex: 0,
-            },
-            textInput: {
-              fontSize: 18,
-            },
-          }}
+          placeholder="Where to?"
+          styles={toInputBoxStyles}
           onPress={(data, details = null) => {
             formik.setFieldValue("location", data.description);
-            // console.log("location", details.geometry.location);
             dispatch(
-              setOrigin({
+              setDestination({
                 location: details.geometry.location,
                 description: data.description,
               })
             );
-            dispatch(setDestination(null));
+            //TODO: This should navigate if only form is valid
+            navigation.navigate("RiderOptionsCard");
           }}
           fetchDetails={true}
           returnKeyType={"search"}
@@ -179,12 +142,12 @@ const HomeScreen = () => {
           }}
           renderRightButton={() => (
             <TouchableOpacity
-              style={styles.clearButton}
+              style={toInputBoxStyles.clearButton}
               onPress={() => {
                 this.textInput?.clear();
                 // Handle the clear button press
                 formik.setFieldValue("location", "");
-                dispatch(setOrigin(null));
+                dispatch(setDestination(null));
               }}
             >
               <Icon
@@ -196,29 +159,77 @@ const HomeScreen = () => {
             </TouchableOpacity>
           )}
           nearbyPlacesAPI="GooglePlacesSearch"
-          //predefinedPlaces={[homePlace, workPlace]}
+          // predefinedPlaces={[homePlace, workPlace]}
           debounce={200}
           value={formik.values.location}
           onChangeText={(text) => {
-            // console.log("text", text);
+            console.log("text", text);
             this.textInput = text;
             formik.setFieldValue("location", text);
           }}
           onBlur={formik.handleBlur("location")}
         />
-
         {formik.touched.location && formik.errors.location && (
           <Text style={tw`text-red-500 mt-2 pl-2 mb-2`}>
             {formik.errors.location}
           </Text>
         )}
-        <NavOptions formik={formik} />
-        <NavFavourites formik={formik} data={userData} />
+        <NavFavourites formik={formik} />
+      </View>
+
+      {/* TODO: Cant click on this unless you have destination setup */}
+      <View
+        style={tw`flex-row bg-white justify-evenly py-2 mt-auto border-t border-gray-100`}
+      >
+        <TouchableOpacity
+          // onPress={() => navigation.navigate("RiderOptionsCard")}
+          style={tw`flex flex-row justify-between bg-black w-24 px-4 py-3 rounded-full`}
+        >
+          <Icon name="car" type="font-awesome" color="white" size={16} />
+          <Text style={tw`text-white text-center`}>Rides</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          // onPress={() => navigation.navigate("RiderOptionsCard")}
+          style={tw`flex flex-row justify-between w-24 px-4 py-3 rounded-full`}
+        >
+          <Icon name="car" type="font-awesome" color="black" size={16} />
+          <Text style={tw`text-center`}>Rides</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          // onPress={() => navigation.navigate("RiderOptionsCard")}
+          style={tw`flex flex-row justify-between bg-black w-24 px-4 py-3 rounded-full`}
+        >
+          <Icon name="car" type="font-awesome" color="white" size={16} />
+          <Text style={tw`text-white text-center`}>Rides</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 };
 
-export default HomeScreen;
+export default GiveNavigateCard;
 
-const styles = StyleSheet.create({});
+const toInputBoxStyles = StyleSheet.create({
+  container: {
+    backgroundColor: "white",
+    paddingTop: 20,
+    flex: 0,
+  },
+  textInput: {
+    backgroundColor: "rgb(209 213 219)",
+    borderRadius: 0,
+    fontSize: 18,
+    position: "relative",
+  },
+  textInputContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 0,
+  },
+  clearButton: {
+    paddingHorizontal: 2,
+    position: "absolute",
+    right: 25,
+  },
+});

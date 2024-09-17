@@ -12,8 +12,13 @@ import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from "formik";
 import * as yup from "yup";
+import axios from "axios";
+import { BASE_URL } from "@env";
+import { useDispatch } from "react-redux";
+import { setUser } from "../slices/navSlice";
 
 const SignUpScreen = () => {
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
@@ -55,6 +60,19 @@ const SignUpScreen = () => {
           email: yup
             .string()
             .email("Invalid email")
+            .test(
+              "unilagEmail",
+              "Enter your student or staff email address",
+              function (value) {
+                // Check if the email ends with either "@live.unilag.edu.ng" or "@unilag.edu.ng"
+                if (value.endsWith("@live.unilag.edu.ng")) {
+                  // Check if the matric number has 9 digits
+                  const matricNumber = value.split("@")[0]; // Extract the matric number
+                  return matricNumber.length === 9;
+                }
+                return value.endsWith("@unilag.edu.ng");
+              }
+            )
             .required("Email is required"),
           password: yup.string().required("Password is required"),
           confirmPassword: yup
@@ -63,21 +81,139 @@ const SignUpScreen = () => {
         })}
         onSubmit={(values) => {
           setLoading(true);
-          setTimeout(() => {
-            Toast.show({
-              type: "success",
-              position: "top",
-              text1: "Signup Successful!",
-              visibilityTime: 3000,
-              autoHide: true,
-            });
-            setLoading(false);
-            setTimeout(() => {
-              navigation.navigate("Home");
-            }, 2000);
-          }, 2000);
           // Perform sign-up logic here
           console.log("Sign up pressed with:", values);
+          axios
+            .post(
+              `${BASE_URL}/user/auth/verify-email`,
+              { email: values.email },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            )
+            .then((response) => {
+              setLoading(false);
+
+              if (response.data.success) {
+                //TODO: Alert an otp has been sent to their mail
+                navigation.navigate("OTP", { values });
+              } else {
+                console.log(response);
+                Toast.show({
+                  type: "error",
+                  position: "top",
+                  text1: response.data.errors[0],
+                  visibilityTime: 3000,
+                  autoHide: true,
+                });
+              }
+            })
+            .catch((error) => {
+              setLoading(false);
+              if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                console.error(
+                  "Server responded with error status:",
+                  error.response.status
+                );
+                console.error("Error message:", error.response.data);
+                Toast.show({
+                  type: "error",
+                  position: "top",
+                  text1: error.response.data.errors[0],
+                  visibilityTime: 3000,
+                  autoHide: true,
+                });
+              } else if (error.request) {
+                // The request was made but no response was received
+                console.error(
+                  "Request made but no response received:",
+                  error.request
+                );
+                Toast.show({
+                  type: "error",
+                  position: "top",
+                  text1: "Something went wrong. please try again later.",
+                  visibilityTime: 3000,
+                  autoHide: true,
+                });
+              } else {
+                // Something happened in setting up the request that triggered an Error
+                console.error("Error setting up request:", error.message);
+                Toast.show({
+                  type: "error",
+                  position: "top",
+                  text1: "Something went wrong. please try again later.",
+                  visibilityTime: 3000,
+                  autoHide: true,
+                });
+              }
+            });
+          // axios
+          //   .post(`${BASE_URL}/user/auth/register`, values, {
+          //     headers: {
+          //       "Content-Type": "application/json",
+          //     },
+          //   })
+          //   .then((response) => {
+          //     setLoading(false);
+
+          //     if (response.data.success) {
+          //       dispatch(
+          //         setUser({
+          //           token: response.data.data.token,
+          //         })
+          //       );
+          //       navigation.navigate("Home");
+          //     } else {
+          //       console.log(response);
+          //     }
+          //   })
+          //   .catch((error) => {
+          //     setLoading(false);
+          //     if (error.response) {
+          //       // The request was made and the server responded with a status code
+          //       // that falls out of the range of 2xx
+          //       console.error(
+          //         "Server responded with error status:",
+          //         error.response.status
+          //       );
+          //       console.error("Error message:", error.response.data);
+          //       Toast.show({
+          //         type: "error",
+          //         position: "top",
+          //         text1: error.response.data.errors[0],
+          //         visibilityTime: 3000,
+          //         autoHide: true,
+          //       });
+          //     } else if (error.request) {
+          //       // The request was made but no response was received
+          //       console.error(
+          //         "Request made but no response received:",
+          //         error.request
+          //       );
+          //       Toast.show({
+          //         type: "error",
+          //         position: "top",
+          //         text1: "Something went wrong. please try again later.",
+          //         visibilityTime: 3000,
+          //         autoHide: true,
+          //       });
+          //     } else {
+          //       // Something happened in setting up the request that triggered an Error
+          //       console.error("Error setting up request:", error.message);
+          //       Toast.show({
+          //         type: "error",
+          //         position: "top",
+          //         text1: "Something went wrong. please try again later.",
+          //         visibilityTime: 3000,
+          //         autoHide: true,
+          //       });
+          //     }
+          //   });
         }}
       >
         {({
@@ -152,11 +288,13 @@ const SignUpScreen = () => {
                 value={values.confirmPassword}
               />
               {touched.confirmPassword && errors.confirmPassword && (
-                <Text style={tw`text-red-500 mt-2`}>{errors.confirmPassword}</Text>
+                <Text style={tw`text-red-500 mt-2`}>
+                  {errors.confirmPassword}
+                </Text>
               )}
             </View>
             <TouchableOpacity
-              style={tw`bg-gray-800 p-4 rounded-md w-full mb-4`}
+              style={tw`bg-gray-800 p-4 rounded-md w-full mb-14`}
               onPress={handleSubmit}
               disabled={loading}
             >
@@ -176,7 +314,7 @@ const SignUpScreen = () => {
           </>
         )}
       </Formik>
-      <Toast ref={(ref) => Toast.setRef(ref)} />
+      <Toast innerRef={(ref) => Toast.setRef(ref)} />
     </KeyboardAvoidingView>
   );
 };
