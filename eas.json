@@ -13,9 +13,9 @@
                 "buildType": "apk"
             },
             "env": {
-                "BASE_URL": "https://slyft.onrender.com/v1",
                 "GOOGLE_MAPS_APIKEY": "AIzaSyCSrLGuUrg4tP6n-LfurWaGtH4JzbXRfsA",
-                "WEBSOCKET_URL": "wss://free.blr2.piesocket.com/v3/1?api_key=dKA1PcoBPSDNAVPH8sUOpn6LTHEaArJjWJomLZ9U&notify_self=1"
+                "BASE_URL": "https://slyft.onrender.com/v1",
+                "WEBSOCKET_URL": "wss://demo.piesocket.com/v3/channel_123?api_key=Id4ZAun5Z9r82oxES2j4KzZNm89uKjvVNoAlOk9f&notify_self"
             }
         },
         "production": {}
